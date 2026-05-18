@@ -1,0 +1,48 @@
+name: Validate Templates
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate JSON syntax
+        run: |
+          echo "Validating workflow JSON files..."
+          for f in templates/*/workflow.json; do
+            python3 -c "import json; json.load(open('$f'))" && echo "✓ $f — valid JSON"
+          done
+
+      - name: Check required fields
+        run: |
+          echo "Checking required n8n fields..."
+          for f in templates/*/workflow.json; do
+            python3 -c "
+          import json, sys
+          d = json.load(open('$f'))
+          assert 'nodes' in d, 'Missing: nodes'
+          assert isinstance(d['nodes'], list), 'nodes must be an array'
+          assert len(d['nodes']) > 0, 'nodes array is empty'
+          assert 'connections' in d, 'Missing: connections'
+          assert 'meta' in d, 'Missing: meta'
+          print('✓', '$f', '— all required fields present')
+          "
+          done
+
+      - name: Check README files exist
+        run: |
+          echo "Checking README.md files..."
+          for dir in templates/*/; do
+            if [ -f "${dir}README.md" ]; then
+              echo "✓ ${dir}README.md exists"
+            else
+              echo "✗ ${dir}README.md MISSING" && exit 1
+            fi
+          done
+
+      - name: Count templates
+        run: |
+          count=$(ls -d templates/*/ | wc -l)
+          echo "Total templates: $count"
