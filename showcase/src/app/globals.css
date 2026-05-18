@@ -16,16 +16,31 @@ html {
   scroll-behavior: smooth;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
+.dot-grid {
+  background-image: radial-gradient(circle, #1f2937 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
 }
-::-webkit-scrollbar-track {
-  background: #111827;
+
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 4px;
+
+.card-shine {
+  position: relative;
+  overflow: hidden;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
+.card-shine::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+  pointer-events: none;
 }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #6366f1; }
