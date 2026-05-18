@@ -1,0 +1,171 @@
+{
+  "name": "Real Estate Lead Nurture",
+  "nodes": [
+    {
+      "parameters": { "httpMethod": "POST", "path": "real-estate-lead", "responseMode": "responseNode", "options": {} },
+      "id": "re-0001-4001-8001-a1b2c3d40001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "f001", "name": "lead_id", "value": "={{ 'LD-' + Date.now() }}", "type": "string" },
+            { "id": "f002", "name": "first_name", "value": "={{ $json.first_name || '' }}", "type": "string" },
+            { "id": "f003", "name": "last_name", "value": "={{ $json.last_name || '' }}", "type": "string" },
+            { "id": "f004", "name": "email", "value": "={{ ($json.email || '').toLowerCase().trim() }}", "type": "string" },
+            { "id": "f005", "name": "phone", "value": "={{ $json.phone || 'Not provided' }}", "type": "string" },
+            { "id": "f006", "name": "property_interest", "value": "={{ $json.property_type || 'General Inquiry' }}", "type": "string" },
+            { "id": "f007", "name": "budget", "value": "={{ $json.budget || 'Not specified' }}", "type": "string" },
+            { "id": "f008", "name": "location", "value": "={{ $json.location || 'Not specified' }}", "type": "string" },
+            { "id": "f009", "name": "source", "value": "={{ $json.source || 'Website' }}", "type": "string" },
+            { "id": "f010", "name": "inquiry_date", "value": "={{ new Date().toISOString().split('T')[0] }}", "type": "string" },
+            { "id": "f011", "name": "status", "value": "New", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "re-0002-4002-8002-a1b2c3d40002",
+      "name": "Enrich Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "value": "YOUR_GOOGLE_SHEET_ID", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{ $json.lead_id }}",
+            "First Name": "={{ $json.first_name }}",
+            "Last Name": "={{ $json.last_name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Property Interest": "={{ $json.property_interest }}",
+            "Budget": "={{ $json.budget }}",
+            "Location": "={{ $json.location }}",
+            "Source": "={{ $json.source }}",
+            "Inquiry Date": "={{ $json.inquiry_date }}",
+            "Status": "={{ $json.status }}",
+            "Replied": "No"
+          }
+        },
+        "options": {}
+      },
+      "id": "re-0003-4003-8003-a1b2c3d40003",
+      "name": "Add to CRM Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [650, 300],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "gsheets-cred-01", "name": "Google Sheets Account" } }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Thanks for Your Inquiry, {{ $json.first_name }} — Let's Find Your Perfect Property",
+        "emailType": "html",
+        "message": "<p>Hi {{ $json.first_name }},</p><p>Thank you for reaching out! I've received your inquiry about <strong>{{ $json.property_interest }}</strong> in <strong>{{ $json.location }}</strong>.</p><p>I'll be in touch within 24 hours with a curated shortlist.</p><p>Best regards,<br><strong>Sarah Mitchell</strong><br>Senior Property Consultant</p>",
+        "options": {}
+      },
+      "id": "re-0004-4004-8004-a1b2c3d40004",
+      "name": "Send Intro Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "credentials": { "gmailOAuth2": { "id": "gmail-cred-01", "name": "Gmail Account" } }
+    },
+    {
+      "parameters": { "unit": "days", "amount": 3 },
+      "id": "re-0005-4005-8005-a1b2c3d40005",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": { "__rl": true, "value": "YOUR_GOOGLE_SHEET_ID", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "filters": { "conditions": [{ "keyName": "Lead ID", "condition": "equal", "keyValue": "={{ $('Enrich Lead Data').item.json.lead_id }}" }] },
+        "options": {}
+      },
+      "id": "re-0006-4006-8006-a1b2c3d40006",
+      "name": "Check Reply Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1250, 300],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "gsheets-cred-01", "name": "Google Sheets Account" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [{ "id": "c001", "leftValue": "={{ $json.Replied }}", "rightValue": "Yes", "operator": { "type": "string", "operation": "equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "re-0007-4007-8007-a1b2c3d40007",
+      "name": "Did They Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Enrich Lead Data').item.json.email }}",
+        "subject": "{{ $('Enrich Lead Data').item.json.first_name }}, I have properties I think you'll love",
+        "emailType": "html",
+        "message": "<p>Hi {{ $('Enrich Lead Data').item.json.first_name }},</p><p>I wanted to follow up on your inquiry from a few days ago. I have some excellent properties available in <strong>{{ $('Enrich Lead Data').item.json.location }}</strong> that match your profile.</p><p>Would you be available for a quick 15-minute call this week?</p><p>Best regards,<br><strong>Sarah Mitchell</strong></p>",
+        "options": {}
+      },
+      "id": "re-0008-4008-8008-a1b2c3d40008",
+      "name": "Send Follow-up Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1650, 400],
+      "credentials": { "gmailOAuth2": { "id": "gmail-cred-01", "name": "Gmail Account" } }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": { "__rl": true, "value": "YOUR_GOOGLE_SHEET_ID", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{ $('Enrich Lead Data').item.json.lead_id }}",
+            "Status": "Follow-up Sent",
+            "Last Contact Date": "={{ new Date().toISOString().split('T')[0] }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "re-0009-4009-8009-a1b2c3d40009",
+      "name": "Log Outcome",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1850, 400],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "gsheets-cred-01", "name": "Google Sheets Account" } }
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Enrich Lead Data", "type": "main", "index": 0 }]] },
+    "Enrich Lead Data": { "main": [[{ "node": "Add to CRM Sheet", "type": "main", "index": 0 }]] },
+    "Add to CRM Sheet": { "main": [[{ "node": "Send Intro Email", "type": "main", "index": 0 }]] },
+    "Send Intro Email": { "main": [[{ "node": "Wait 3 Days", "type": "main", "index": 0 }]] },
+    "Wait 3 Days": { "main": [[{ "node": "Check Reply Status", "type": "main", "index": 0 }]] },
+    "Check Reply Status": { "main": [[{ "node": "Did They Reply?", "type": "main", "index": 0 }]] },
+    "Did They Reply?": { "main": [[{ "node": "Log Outcome", "type": "main", "index": 0 }], [{ "node": "Send Follow-up Email", "type": "main", "index": 0 }]] },
+    "Send Follow-up Email": { "main": [[{ "node": "Log Outcome", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": { "templateCredsSetupCompleted": false, "instanceId": "template" }
+}
