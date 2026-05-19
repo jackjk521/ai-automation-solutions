@@ -1,1 +1,11 @@
-/showcase/node_modules
+# showcase (Next.js)
+showcase/node_modules
+showcase/.next
+showcase/out
+showcase/.env
+showcase/.env.local
+showcase/.env.*.local
+showcase/npm-debug.log*
+showcase/yarn-debug.log*
+showcase/yarn-error.log*
+showcase/.pnpm-debug.log*
