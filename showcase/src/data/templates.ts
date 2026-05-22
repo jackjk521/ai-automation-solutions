@@ -541,4 +541,91 @@ export const templates: Template[] = [
     githubPath:
       "templates/09-web-scraping-business-analysis/workflow.json",
   },
+  {
+    id: "10",
+    slug: "b2b-lead-gen-pipeline",
+    name: "B2B Lead Gen Pipeline",
+    description:
+      "Full-stack B2B pipeline: scrape Google Maps, score leads with AI, publish top prospects, and send outreach.",
+    fullDescription:
+      "An enterprise-grade, fully automated B2B lead generation engine. Pulls local businesses from Google Maps via Apify, enriches each with BuiltWith tech stack + PageSpeed score + Open PageRank authority, feeds all signals to a universal LLM router (DeepSeek, Anthropic, OpenAI, Groq — swap with 4 env vars), scores leads across 5 dimensions (tech, SEO, brand, sales readiness, expansion), filters local businesses, ranks by score, publishes top prospects to a Vercel-hosted HTML page, appends to Google Sheets, and sends personalised outreach emails — with a circuit breaker for error resilience.",
+    trigger: "schedule",
+    isAIPowered: true,
+    integrations: [
+      "Google Sheets",
+      "Gmail",
+      "Apify",
+      "Anthropic",
+      "BuiltWith",
+      "Vercel",
+      "PageSpeed",
+    ],
+    tags: [
+      "AI",
+      "B2B",
+      "Lead Generation",
+      "Web Scraping",
+      "Sales Intelligence",
+      "Automation",
+    ],
+    nodes: [
+      "Schedule Trigger",
+      "Load Config from Sheets",
+      "Apify Google Maps Actor",
+      "Poll Apify Dataset",
+      "BuiltWith Tech Stack",
+      "PageSpeed Insights",
+      "Open PageRank",
+      "LLM Router (Universal)",
+      "Score Lead (5 Dimensions)",
+      "Accumulate & Rank Top N",
+      "Circuit Breaker",
+      "Publish to Vercel",
+      "Append to Google Sheets",
+      "Send Outreach Email",
+      "Log Errors",
+    ],
+    prerequisites: [
+      "n8n instance (self-hosted with docker-compose.yml included)",
+      "Apify account + token (apify.com)",
+      "BuiltWith API key (builtwith.com)",
+      "PageSpeed Insights API key (free, Google Cloud Console)",
+      "Open PageRank API key (free, domcop.com/openpagerank)",
+      "LLM API key: DeepSeek (recommended), Anthropic, OpenAI, Groq, or Moonshot",
+      "Google Sheets with 3-tab schema (Config, Leads, Errors)",
+      "Vercel account + token for HTML publishing (optional)",
+    ],
+    credentials: [
+      {
+        node: "Google Sheets",
+        type: "Google OAuth2",
+        notes: "OAuth2 with spreadsheets read/write scope",
+      },
+      {
+        node: "Apify HTTP nodes",
+        type: "Header Auth",
+        notes: "Authorization: Bearer YOUR_APIFY_TOKEN",
+      },
+      {
+        node: "LLM Router (Code node)",
+        type: "n8n Variables",
+        notes:
+          "Set LLM_PROVIDER, LLM_BASE_URL, LLM_MODEL, LLM_API_KEY in .env / docker-compose",
+      },
+      {
+        node: "Gmail",
+        type: "Gmail OAuth2",
+        notes: "OAuth2 with gmail.send scope",
+      },
+    ],
+    customization: [
+      "Swap LLM provider by changing 4 env vars: LLM_PROVIDER, LLM_BASE_URL, LLM_MODEL, LLM_API_KEY",
+      "Tune MAX_LEADS_FETCHED (default 30) and TOP_LEADS_KEPT (default 10) in .env",
+      "Edit the 5-dimension scoring prompt to weight criteria for your ideal customer profile",
+      "Set SCORE_THRESHOLD to filter out low-quality leads before outreach",
+      "Disable Vercel publishing node if you only need Sheets + email output",
+    ],
+    githubPath:
+      "templates/10-b2b-lead-gen-pipeline/workflow.json",
+  },
 ];

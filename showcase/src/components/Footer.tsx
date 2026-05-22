@@ -6,6 +6,7 @@ const TEMPLATE_LINKS = [
   { href: '/templates/web-scraping-business-analysis/', label: 'Web Scraping & Outreach' },
   { href: '/templates/weekly-report-generator/', label: 'Weekly Report Generator' },
   { href: '/templates/support-ticket-classifier/', label: 'Support Ticket Classifier' },
+  { href: '/templates/b2b-lead-gen-pipeline/', label: 'B2B Lead Gen Pipeline' },
 ]
 
 const RESOURCE_LINKS = [
