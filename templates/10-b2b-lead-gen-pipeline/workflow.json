@@ -1,0 +1,1746 @@
+{
+  "name": "AI Lead Gen Pipeline",
+  "nodes": [
+    {
+      "id": "s01",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        250,
+        80
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 1 \u2014 TRIGGER & CONFIG\n\nTwo entrypoints merge: Schedule (Mon+Wed 07:00 Manila) and Form (manual run). Config rows from Google Sheets Config tab. One niche/location processed at a time.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n01",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        250,
+        220
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            },
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n02",
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        250,
+        380
+      ],
+      "parameters": {
+        "formTitle": "Lead Gen \u2014 Manual Run",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Niche",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Run Now",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n03",
+      "name": "Read Config Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Config",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n04",
+      "name": "Filter Active Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const isForm = $input.first().json.Niche !== undefined;\nif (isForm) return [{json:{niche:$input.first().json.Niche,location:$input.first().json.Location}}];\nreturn $input.all().filter(i=>i.json.Status==='Active').map(i=>({json:{niche:i.json.Niche,location:i.json.Location}}));"
+      }
+    },
+    {
+      "id": "n05",
+      "name": "Init Run State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        940,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "runId",
+              "value": "={{ $now.toISO().replace(/[:.]/g,'-') }}-{{ $json.niche.replace(/\\s+/g,'-').toLowerCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n06",
+      "name": "Init Workflow Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        300
+      ],
+      "parameters": {
+        "jsCode": "$workflow.vars.errorCount=0;\n$workflow.vars.processedCount=0;\n$workflow.vars.skippedDups=0;\n$workflow.vars.totalScored=0;\n$workflow.vars.localCount=0;\n$workflow.vars.scoredLeads=[];\n$workflow.vars.errors=[];\n$workflow.vars.runId=$input.first().json.runId;\nreturn $input.all();"
+      }
+    },
+    {
+      "id": "n07",
+      "name": "Split Config Rows",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1380,
+        300
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "s02",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        80
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 2 \u2014 SEARCH (APIFY GOOGLE MAPS)\n\nFetches MAX_LEADS_FETCHED results per niche/location via Apify compass~crawler-google-places actor. Polls until SUCCEEDED or timeout.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n08",
+      "name": "Start Apify Maps Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/compass~crawler-google-places/runs",
+        "options": {
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({searchStringsArray:[$json.niche],locationQuery:$json.location,maxCrawledPlacesPerSearch:parseInt($env.MAX_LEADS_FETCHED)||30,skipPlacesWithoutWebsite:true,scrapeContacts:true,language:\"en\"}) }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $env.APIFY_TOKEN }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n09",
+      "name": "Poll Apify Maps Run",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const runId=$input.first().json.data.id;\nconst token=$env.APIFY_TOKEN;\nconst maxTries=parseInt($env.MAX_APIFY_POLL_ATTEMPTS)||15;\nconst cfg=$('Split Config Rows').first().json;\nfor(let i=0;i<maxTries;i++){\n  const res=await this.helpers.request({method:'GET',url:`https://api.apify.com/v2/actor-runs/${runId}?token=${token}`,json:true});\n  const s=res.data.status;\n  if(s==='SUCCEEDED') return [{json:{datasetId:res.data.defaultDatasetId,status:'done',niche:cfg.niche,location:cfg.location}}];\n  if(s==='FAILED'||s==='ABORTED') return [{json:{status:'failed',error:`Apify run ${s}`}}];\n  await new Promise(r=>setTimeout(r,10000));\n}\nreturn [{json:{status:'timeout',error:'Apify poll timeout \u2014 increase MAX_APIFY_POLL_ATTEMPTS'}}];"
+      }
+    },
+    {
+      "id": "n10",
+      "name": "Check Maps Run Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "done",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "n11",
+      "name": "Fetch Apify Dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2260,
+        220
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.datasetId + '/items' }}",
+        "options": {
+          "timeout": 30000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $env.APIFY_TOKEN }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $env.MAX_LEADS_FETCHED }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n12",
+      "name": "Normalize Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const seen=new Set();\nconst leads=[];\nconst meta=$('Poll Apify Maps Run').first().json;\nfor(const item of $input.all().map(i=>i.json)){\n  const url=(item.website??'').toLowerCase().replace(/\\/$/,'').trim();\n  if(!url||seen.has(url))continue;\n  seen.add(url);\n  let domain='';\n  try{domain=new URL(url).hostname.replace(/^www\\./,'');}catch{}\n  leads.push({json:{niche:meta.niche,location:meta.location,runId:$workflow.vars.runId,\n    company:item.title??item.name??'',url,domain,\n    phone:item.phone??'',address:item.address??'',\n    rating:item.totalScore??null,reviewsCount:item.reviewsCount??0,\n    email:item.email??item.emails?.[0]??null,\n    facebook:item.facebook??null,instagram:item.instagram??null,linkedin:item.linkedin??null}});\n}\n$workflow.vars.totalFetched=leads.length;\nreturn leads;"
+      }
+    },
+    {
+      "id": "s03",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2700,
+        80
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 3 \u2014 DEDUPLICATION\n\nStrips any URL already in the Leads tab. All-time, all runs. Guarantees every lead is new.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n13",
+      "name": "Read All Existing URLs",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2700,
+        220
+      ],
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n14",
+      "name": "Filter Fresh Leads Only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const existing=new Set($('Read All Existing URLs').all()\n  .map(i=>(i.json.URL??i.json.url??'').toLowerCase().replace(/\\/$/,''))\n  .filter(Boolean));\nconst fresh=$input.all().filter(i=>{\n  const url=(i.json.url??'').toLowerCase().replace(/\\/$/,'');\n  return url&&!existing.has(url);\n});\nconst skipped=$input.all().length-fresh.length;\n$workflow.vars.skippedDups=($workflow.vars.skippedDups??0)+skipped;\nif(fresh.length===0) return [{json:{noNewLeads:true,niche:$input.first()?.json?.niche??'',\n  message:`All ${skipped} results already in Sheets. Add a new location or niche.`}}];\nreturn fresh;"
+      }
+    },
+    {
+      "id": "n15",
+      "name": "Check If Any Fresh Leads",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3140,
+        220
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.noNewLeads }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "s04",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        250,
+        580
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 4 \u2014 INDUSTRY OVERVIEW (LLM)\n\nOne LLM call per niche before per-lead processing. Universal router: change LLM_PROVIDER in .env to switch between DeepSeek, OpenAI, Anthropic, Groq.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n16",
+      "name": "Build Industry Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        500,
+        700
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "system",
+              "value": "You are a market research analyst. Return ONLY valid JSON. No markdown. No explanation.",
+              "type": "string"
+            },
+            {
+              "id": "a1",
+              "name": "prompt",
+              "value": "={{ 'Industry overview for digital agency targeting local businesses. Niche: ' + $json.niche + '. Location: ' + $json.location + '. Return JSON: {\"digital_maturity\":\"low|medium|high\",\"common_pain_points\":[\"p1\",\"p2\",\"p3\"],\"outreach_angle\":\"string\",\"best_ready_products\":[\"p1\",\"p2\"]}' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "max_tokens",
+              "value": "600",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "pt_niche",
+              "value": "={{ $json.niche }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "pt_location",
+              "value": "={{ $json.location }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n17",
+      "name": "LLM Router Industry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const provider = $env.LLM_PROVIDER ?? 'deepseek';\nconst apiKey = $env.LLM_API_KEY;\nconst model = $env.LLM_MODEL;\nconst system = $input.first().json.system;\nconst prompt = $input.first().json.prompt;\nconst maxTok = parseInt($input.first().json.max_tokens) || 800;\nconst passthrough = $input.first().json;\nlet url, headers, body;\nif (provider === 'anthropic') {\n  url = 'https://api.anthropic.com/v1/messages';\n  headers = {'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'};\n  body = {model, max_tokens: maxTok, system, messages: [{role: 'user', content: prompt}]};\n} else {\n  url = $env.LLM_BASE_URL;\n  headers = {'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json'};\n  body = {model, max_tokens: maxTok, messages: [{role: 'system', content: system}, {role: 'user', content: prompt}]};\n}\nreturn [{json: {url, headers, body, passthrough}}];"
+      }
+    },
+    {
+      "id": "n18",
+      "name": "HTTP LLM Industry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        700
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.headers.Authorization ?? '' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $json.headers['x-api-key'] ?? '' }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "={{ $json.headers['anthropic-version'] ?? '' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "n19",
+      "name": "Parse Industry Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const provider=$env.LLM_PROVIDER??'deepseek';\nconst data=$input.first().json;\nlet text=provider==='anthropic'?(data.content?.[0]?.text??''):(data.choices?.[0]?.message?.content??'');\ntext=text.replace(/^```(?:json)?\\n?/,'').replace(/\\n?```$/,'').trim();\nlet industryOverview;\ntry{industryOverview=JSON.parse(text);}catch{industryOverview={error:'parse_failed',outreach_angle:'digital modernisation'};}\n$workflow.vars.industryOverview=industryOverview;\nreturn [{json:{industryOverview,niche:$input.first().json.passthrough?.pt_niche,location:$input.first().json.passthrough?.pt_location}}];"
+      }
+    },
+    {
+      "id": "s05",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        580
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 5 \u2014 PER-LEAD ENRICHMENT\n\nPageSpeed (Google, free) + Open PageRank (free). Circuit breaker stops on MAX_ERRORS_BEFORE_ABORT errors.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n20",
+      "name": "Split Leads for Enrichment",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        700
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "n21",
+      "name": "Circuit Breaker Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const errorCount=$workflow.vars.errorCount??0;\nconst maxErrors=parseInt($env.MAX_ERRORS_BEFORE_ABORT)||5;\nreturn [{json:{...$input.first().json,abort:errorCount>=maxErrors}}];"
+      }
+    },
+    {
+      "id": "n22",
+      "name": "Check Abort",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        700
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.abort }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "n23",
+      "name": "HTTP PageSpeed API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2260,
+        620
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed",
+        "options": {
+          "timeout": 30000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "strategy",
+              "value": "mobile"
+            },
+            {
+              "name": "key",
+              "value": "={{ $env.PAGESPEED_API_KEY }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n24",
+      "name": "Extract PageSpeed Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        620
+      ],
+      "parameters": {
+        "jsCode": "const d=$input.first().json;\nconst cats=d.lighthouseResult?.categories??{};\nconst audits=d.lighthouseResult?.audits??{};\nconst lead=$('Split Leads for Enrichment').first().json;\nreturn [{json:{...lead,\n  perfScore:Math.round((cats.performance?.score??0)*100),\n  seoAuditScore:Math.round((cats.seo?.score??0)*100),\n  lcp:audits['largest-contentful-paint']?.displayValue??null,\n  hasHTTPS:(d.id??'').startsWith('https')}}];"
+      }
+    },
+    {
+      "id": "n25",
+      "name": "HTTP Open PageRank",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2700,
+        620
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://openpagerank.com/api/v1.0/getPageRank",
+        "options": {
+          "timeout": 30000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "API-OPR",
+              "value": "={{ $env.OPEN_PAGERANK_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domains[0]",
+              "value": "={{ $json.domain }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n26",
+      "name": "Extract PageRank Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        620
+      ],
+      "parameters": {
+        "jsCode": "const r=$input.first().json?.response?.[0]??{};\nconst ps=$('Extract PageSpeed Data').first().json;\nreturn [{json:{...ps,pageRank:r.page_rank_integer??null}}];"
+      }
+    },
+    {
+      "id": "s06",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3140,
+        580
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 6 \u2014 LLM SCORING\n\nOne LLM call per lead across 5 dimensions: tech, SEO, brand, sales_readiness, expansion_score. Local business detection included.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n27",
+      "name": "Build Scoring Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3360,
+        700
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "system",
+              "value": "You are a B2B lead scoring agent for a digital agency selling web services and software products to SMEs. Return ONLY valid JSON.",
+              "type": "string"
+            },
+            {
+              "id": "a1",
+              "name": "prompt",
+              "value": "={{ 'Score prospect (0-25 each, total max 100). Company: ' + $json.company + ', URL: ' + $json.url + ', Mobile perf: ' + $json.perfScore + '/100, HTTPS: ' + $json.hasHTTPS + ', SEO audit: ' + $json.seoAuditScore + '/100, PageRank: ' + ($json.pageRank??'N/A') + ', Industry: ' + JSON.stringify($workflow.vars.industryOverview??{}) + '. Return: {\"tech_score\":0,\"seo_score\":0,\"brand_score\":0,\"sales_readiness\":0,\"expansion_score\":0,\"total\":0,\"is_local_business\":\"Yes|No|Unknown\",\"top_3_flaws\":[\"f1\",\"f2\",\"f3\"],\"opportunity_summary\":\"string\",\"recommended_first_service\":\"string\",\"expansion_opportunities\":[\"p1\",\"p2\"],\"expansion_reasoning\":\"string\"}' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "max_tokens",
+              "value": "800",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "lead_passthrough",
+              "value": "={{ JSON.stringify($json) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n28",
+      "name": "LLM Router Scoring",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3580,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const provider = $env.LLM_PROVIDER ?? 'deepseek';\nconst apiKey = $env.LLM_API_KEY;\nconst model = $env.LLM_MODEL;\nconst system = $input.first().json.system;\nconst prompt = $input.first().json.prompt;\nconst maxTok = parseInt($input.first().json.max_tokens) || 800;\nconst passthrough = $input.first().json;\nlet url, headers, body;\nif (provider === 'anthropic') {\n  url = 'https://api.anthropic.com/v1/messages';\n  headers = {'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'};\n  body = {model, max_tokens: maxTok, system, messages: [{role: 'user', content: prompt}]};\n} else {\n  url = $env.LLM_BASE_URL;\n  headers = {'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json'};\n  body = {model, max_tokens: maxTok, messages: [{role: 'system', content: system}, {role: 'user', content: prompt}]};\n}\nreturn [{json: {url, headers, body, passthrough}}];"
+      }
+    },
+    {
+      "id": "n29",
+      "name": "HTTP LLM Scoring",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3800,
+        700
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.headers.Authorization ?? '' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $json.headers['x-api-key'] ?? '' }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "={{ $json.headers['anthropic-version'] ?? '' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "n30",
+      "name": "Parse Scoring Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4020,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const provider=$env.LLM_PROVIDER??'deepseek';\nconst data=$input.first().json;\nconst lead=JSON.parse($input.first().json.passthrough?.lead_passthrough??'{}');\nlet text=provider==='anthropic'?(data.content?.[0]?.text??''):(data.choices?.[0]?.message?.content??'');\ntext=text.replace(/^```(?:json)?\\n?/,'').replace(/\\n?```$/,'').trim();\nlet score;\ntry{score=JSON.parse(text);if(typeof score.total!=='number')throw new Error('missing total');}\ncatch(e){score={tech_score:0,seo_score:0,brand_score:0,sales_readiness:0,expansion_score:0,total:0,\n  is_local_business:'Unknown',top_3_flaws:['Score parse failed'],opportunity_summary:'Review manually',\n  recommended_first_service:'Unknown',expansion_opportunities:[],expansion_reasoning:'',parseError:true};\n  $workflow.vars.errorCount=($workflow.vars.errorCount??0)+1;}\n$workflow.vars.processedCount=($workflow.vars.processedCount??0)+1;\nreturn [{json:{...lead,...score}}];"
+      }
+    },
+    {
+      "id": "s07",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        250,
+        1080
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 7 \u2014 RANK & SELECT TOP 10\n\nAccumulates all scored leads, then ranks by total score. Local businesses win tiebreaks. Resets accumulator for next batch.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n31",
+      "name": "Accumulate and Rank",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const store=$workflow.vars.scoredLeads??[];\nstore.push($input.first().json);\n$workflow.vars.scoredLeads=store;\nconst totalFetched=$workflow.vars.totalFetched??store.length;\nif(store.length<totalFetched)return[];\nconst topN=parseInt($env.TOP_LEADS_KEPT)||10;\nconst ranked=store.filter(l=>typeof l.total==='number').sort((a,b)=>{\n  if(b.total!==a.total)return b.total-a.total;\n  const aL=a.is_local_business==='Yes'?1:0,bL=b.is_local_business==='Yes'?1:0;\n  if(bL!==aL)return bL-aL;\n  return(b.expansion_score??0)-(a.expansion_score??0);\n});\nconst top=ranked.slice(0,topN);\n$workflow.vars.totalScored=ranked.length;\n$workflow.vars.localCount=top.filter(l=>l.is_local_business==='Yes').length;\n$workflow.vars.scoredLeads=[];\n$workflow.vars.totalFetched=0;\nreturn top.map(l=>({json:l}));"
+      }
+    },
+    {
+      "id": "s08",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        1080
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 8 \u2014 SHEETS WRITE & SCORE GATE\n\nTop 10 written to Leads sheet. Leads >= SCORE_THRESHOLD proceed to MVP generation. Others marked Low Priority.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n32",
+      "name": "Append Lead to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        940,
+        1200
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Run ID": "={{ $json.runId }}",
+            "Company": "={{ $json.company }}",
+            "URL": "={{ $json.url }}",
+            "Phone": "={{ $json.phone }}",
+            "Email": "={{ $json.email }}",
+            "Address": "={{ $json.address }}",
+            "Rating": "={{ $json.rating }}",
+            "Review Count": "={{ $json.reviewsCount }}",
+            "Tech Score": "={{ $json.tech_score }}",
+            "SEO Score": "={{ $json.seo_score }}",
+            "Brand Score": "={{ $json.brand_score }}",
+            "Sales Readiness": "={{ $json.sales_readiness }}",
+            "Expansion Score": "={{ $json.expansion_score }}",
+            "Total Score": "={{ $json.total }}",
+            "Is Local Business": "={{ $json.is_local_business }}",
+            "Top 3 Flaws": "={{ ($json.top_3_flaws??[]).join(' | ') }}",
+            "Opportunity Summary": "={{ $json.opportunity_summary }}",
+            "Recommended Service": "={{ $json.recommended_first_service }}",
+            "Expansion Opps": "={{ ($json.expansion_opportunities??[]).join(' | ') }}",
+            "Status": "Scored",
+            "Date Added": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        }
+      }
+    },
+    {
+      "id": "n33",
+      "name": "Score Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        1200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.total }}",
+              "rightValue": "={{ parseInt($env.SCORE_THRESHOLD)||70 }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "s09",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        1080
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 9 \u2014 MVP HTML GENERATION\n\nFor leads >= SCORE_THRESHOLD. LLM generates a source-protected HTML preview page. Deployed to Vercel free hosting. URL saved to Sheets.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n34",
+      "name": "Build MVP HTML Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        1200
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "system",
+              "value": "Generate a single self-contained HTML file. Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown. No code fences. No explanation.",
+              "type": "string"
+            },
+            {
+              "id": "a1",
+              "name": "prompt",
+              "value": "={{ 'Create a professional HTML preview page for ' + $json.company + ' (website: ' + $json.url + '). Their worst flaw: ' + ($json.top_3_flaws?.[0]??'outdated design') + '. Service to showcase: ' + $json.recommended_first_service + '. Expansion opportunity: ' + ($json.expansion_opportunities?.[0]??'digital upgrade') + '. Requirements: 1) Solve the flaw visually. 2) Top banner: \"This preview was prepared exclusively for ' + $json.company + '\". 3) Footer: \"MVP preview by [Your Agency] \u00b7 [your email]\". 4) Include right-click disabled JS + keyboard shortcut blocking + devtools detection. 5) Mobile-first, clean modern design. No lorem ipsum \u2014 use real niche-relevant content.' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "max_tokens",
+              "value": "2500",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "lead_json",
+              "value": "={{ JSON.stringify($json) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n35",
+      "name": "LLM Router MVP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const provider = $env.LLM_PROVIDER ?? 'deepseek';\nconst apiKey = $env.LLM_API_KEY;\nconst model = $env.LLM_MODEL;\nconst system = $input.first().json.system;\nconst prompt = $input.first().json.prompt;\nconst maxTok = parseInt($input.first().json.max_tokens) || 800;\nconst passthrough = $input.first().json;\nlet url, headers, body;\nif (provider === 'anthropic') {\n  url = 'https://api.anthropic.com/v1/messages';\n  headers = {'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'};\n  body = {model, max_tokens: maxTok, system, messages: [{role: 'user', content: prompt}]};\n} else {\n  url = $env.LLM_BASE_URL;\n  headers = {'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json'};\n  body = {model, max_tokens: maxTok, messages: [{role: 'system', content: system}, {role: 'user', content: prompt}]};\n}\nreturn [{json: {url, headers, body, passthrough}}];"
+      }
+    },
+    {
+      "id": "n36",
+      "name": "HTTP LLM MVP Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2040,
+        1200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.headers.Authorization ?? '' }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $json.headers['x-api-key'] ?? '' }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "={{ $json.headers['anthropic-version'] ?? '' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 90000
+        }
+      }
+    },
+    {
+      "id": "n37",
+      "name": "Parse MVP HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2260,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const provider=$env.LLM_PROVIDER??'deepseek';\nconst data=$input.first().json;\nconst lead=JSON.parse($input.first().json.passthrough?.lead_json??'{}');\nlet html=provider==='anthropic'?(data.content?.[0]?.text??''):(data.choices?.[0]?.message?.content??'');\nhtml=html.replace(/^```html?\\n?/,'').replace(/\\n?```$/,'').trim();\nreturn [{json:{mvpHtml:html,...lead}}];"
+      }
+    },
+    {
+      "id": "n38",
+      "name": "Deploy MVP to Vercel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2480,
+        1200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vercel.com/v13/deployments",
+        "options": {
+          "timeout": 30000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.VERCEL_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({name:\"mvp-\"+($json.company??\"lead\").toLowerCase().replace(/[^a-z0-9]/g,\"-\").slice(0,40),files:[{file:\"index.html\",data:$json.mvpHtml,encoding:\"utf-8\"}],projectSettings:{framework:null},target:\"production\"}) }}"
+      }
+    },
+    {
+      "id": "n39",
+      "name": "Extract Vercel URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const data=$input.first().json;\nconst url=data.url?`https://${data.url}`:'deploy-failed';\nreturn [{json:{mvpUrl:url,...($input.first().json.passthrough??$input.first().json)}}];"
+      }
+    },
+    {
+      "id": "n40",
+      "name": "Save MVP URL",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2920,
+        1200
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "MVP URL": "={{ $json.mvpUrl }}",
+            "Status": "Ready"
+          },
+          "matchingColumns": [
+            "URL"
+          ],
+          "schema": []
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "URL",
+              "lookupValue": "={{ $json.url }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "s10",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3140,
+        1080
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 10 \u2014 EMAIL DIGEST\n\nRuns after all leads processed. Summarises stats, expansion signals, errors with fix instructions. Sent via Gmail.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n41",
+      "name": "Build Digest Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3360,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const runId=$workflow.vars.runId??'unknown';\nconst processed=$workflow.vars.processedCount??0;\nconst localCount=$workflow.vars.localCount??0;\nconst errorCount=$workflow.vars.errorCount??0;\nconst skipped=$workflow.vars.skippedDups??0;\nconst html=`<div style=\"font-family:sans-serif;max-width:800px;margin:0 auto;color:#1a1a2e\">\n<div style=\"background:#1a1a2e;padding:20px;border-radius:8px 8px 0 0\">\n<h2 style=\"color:#fff;margin:0\">\ud83e\udd16 Lead Gen Digest</h2>\n<p style=\"color:#aab;margin:4px 0 0;font-size:13px\">${new Date().toDateString()} \u00b7 Run: ${runId}</p>\n</div>\n<div style=\"padding:20px;background:#f8f9ff\">\n<div style=\"display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap\">\n<div style=\"text-align:center\"><div style=\"font-size:28px;font-weight:bold\">${processed}</div><div style=\"font-size:12px;color:#666\">Leads processed</div></div>\n<div style=\"text-align:center\"><div style=\"font-size:28px;font-weight:bold;color:#2e7d32\">${localCount}</div><div style=\"font-size:12px;color:#666\">Local businesses</div></div>\n<div style=\"text-align:center\"><div style=\"font-size:28px;font-weight:bold;color:#888\">${skipped}</div><div style=\"font-size:12px;color:#666\">Skipped (dupes)</div></div>\n<div style=\"text-align:center\"><div style=\"font-size:28px;font-weight:bold;color:${errorCount>0?'#c00':'#2e7d32'}\">${errorCount}</div><div style=\"font-size:12px;color:#666\">Errors</div></div>\n</div>\n<p style=\"background:#e8f4fd;border-left:4px solid #1a6aff;padding:12px 16px;border-radius:4px;font-size:13px\">\n\ud83d\udce6 <b>Expansion note:</b> Local businesses with high Expansion Score are pre-qualified for your software product suite. Lead with the product angle before pitching the website redesign.\n</p>\n<a href=\"https://docs.google.com/spreadsheets/d/${$env.GOOGLE_SHEETS_ID}\" style=\"background:#1a1a2e;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-size:14px;display:inline-block\">Open Leads Sheet \u2192</a>\n<p style=\"font-size:11px;color:#999;margin-top:16px;border-top:1px solid #eee;padding-top:12px\">\nSwap LLM: change LLM_PROVIDER + LLM_BASE_URL + LLM_MODEL + LLM_API_KEY in .env and restart Docker.<br>\nAdd niche: new row in Config tab, Status = Active.\n</p>\n</div></div>`;\nreturn [{json:{html,subject:`[Lead Digest] ${new Date().toDateString()} \u00b7 ${processed} leads \u00b7 ${localCount} local \u00b7 ${errorCount} errors`}}];"
+      }
+    },
+    {
+      "id": "n42",
+      "name": "Send Digest Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3580,
+        1200
+      ],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $env.ALERT_EMAIL }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "s11",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3800,
+        1080
+      ],
+      "parameters": {
+        "content": "\u25b6 SECTION 11 \u2014 ERROR LOGGER\n\nWire EVERY node's error output here. Increments errorCount (triggers circuit breaker). Writes each error to Errors sheet.",
+        "width": 500,
+        "height": 120
+      }
+    },
+    {
+      "id": "n43",
+      "name": "Error Logger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4020,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const input=$input.first().json;\nconst entry={runId:$workflow.vars.runId??'unknown',timestamp:new Date().toISOString(),\n  node:input.node??'unknown',companyUrl:input.url??input.company??'-',\n  errorMessage:input.message??input.error??JSON.stringify(input).slice(0,200),resolved:'No'};\n$workflow.vars.errorCount=($workflow.vars.errorCount??0)+1;\nreturn [{json:entry}];"
+      }
+    },
+    {
+      "id": "n44",
+      "name": "Write Error to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4240,
+        1200
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Errors",
+          "mode": "name"
+        },
+        "options": {},
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Run ID": "={{ $json.runId }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Node": "={{ $json.node }}",
+            "Company/URL": "={{ $json.companyUrl }}",
+            "Error Message": "={{ $json.errorMessage }}",
+            "Resolved": "No"
+          },
+          "matchingColumns": [],
+          "schema": []
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Config Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Config Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Config Sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter Active Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Active Rows": {
+      "main": [
+        [
+          {
+            "node": "Init Run State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Run State": {
+      "main": [
+        [
+          {
+            "node": "Init Workflow Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Workflow Vars": {
+      "main": [
+        [
+          {
+            "node": "Split Config Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Config Rows": {
+      "main": [
+        [
+          {
+            "node": "Start Apify Maps Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Apify Maps Run": {
+      "main": [
+        [
+          {
+            "node": "Poll Apify Maps Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Apify Maps Run": {
+      "main": [
+        [
+          {
+            "node": "Check Maps Run Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Maps Run Status": {
+      "main": [
+        [
+          {
+            "node": "Fetch Apify Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Apify Dataset": {
+      "main": [
+        [
+          {
+            "node": "Normalize Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Leads": {
+      "main": [
+        [
+          {
+            "node": "Read All Existing URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Existing URLs": {
+      "main": [
+        [
+          {
+            "node": "Filter Fresh Leads Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Fresh Leads Only": {
+      "main": [
+        [
+          {
+            "node": "Check If Any Fresh Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Any Fresh Leads": {
+      "main": [
+        [
+          {
+            "node": "Error Logger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Industry Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Industry Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM Router Industry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Router Industry": {
+      "main": [
+        [
+          {
+            "node": "HTTP LLM Industry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP LLM Industry": {
+      "main": [
+        [
+          {
+            "node": "Parse Industry Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Industry Response": {
+      "main": [
+        [
+          {
+            "node": "Split Leads for Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Leads for Enrichment": {
+      "main": [
+        [
+          {
+            "node": "Circuit Breaker Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Circuit Breaker Check": {
+      "main": [
+        [
+          {
+            "node": "Check Abort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Abort": {
+      "main": [
+        [
+          {
+            "node": "Build Digest Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP PageSpeed API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP PageSpeed API": {
+      "main": [
+        [
+          {
+            "node": "Extract PageSpeed Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PageSpeed Data": {
+      "main": [
+        [
+          {
+            "node": "HTTP Open PageRank",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Open PageRank": {
+      "main": [
+        [
+          {
+            "node": "Extract PageRank Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PageRank Data": {
+      "main": [
+        [
+          {
+            "node": "Build Scoring Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Scoring Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM Router Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Router Scoring": {
+      "main": [
+        [
+          {
+            "node": "HTTP LLM Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP LLM Scoring": {
+      "main": [
+        [
+          {
+            "node": "Parse Scoring Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Scoring Response": {
+      "main": [
+        [
+          {
+            "node": "Accumulate and Rank",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accumulate and Rank": {
+      "main": [
+        [
+          {
+            "node": "Append Lead to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Lead to Sheets": {
+      "main": [
+        [
+          {
+            "node": "Score Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Gate": {
+      "main": [
+        [
+          {
+            "node": "Build MVP HTML Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Digest Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build MVP HTML Request": {
+      "main": [
+        [
+          {
+            "node": "LLM Router MVP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Router MVP": {
+      "main": [
+        [
+          {
+            "node": "HTTP LLM MVP Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP LLM MVP Call": {
+      "main": [
+        [
+          {
+            "node": "Parse MVP HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse MVP HTML": {
+      "main": [
+        [
+          {
+            "node": "Deploy MVP to Vercel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deploy MVP to Vercel": {
+      "main": [
+        [
+          {
+            "node": "Extract Vercel URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Vercel URL": {
+      "main": [
+        [
+          {
+            "node": "Save MVP URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save MVP URL": {
+      "main": [
+        [
+          {
+            "node": "Build Digest Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Digest Email": {
+      "main": [
+        [
+          {
+            "node": "Send Digest Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Logger": {
+      "main": [
+        [
+          {
+            "node": "Write Error to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - TZ=Asia/Manila
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=changeme
+      - N8N_HOST=0.0.0.0
+      - N8N_PROTOCOL=http
+      - EXECUTIONS_TIMEOUT=3600
+      - EXECUTIONS_TIMEOUT_MAX=7200
+      - N8N_EXECUTION_TIMEOUT=3600
+      # Pass all .env vars into container
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - LLM_BASE_URL=${LLM_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - APIFY_TOKEN=${APIFY_TOKEN}
+      - BUILTWITH_API_KEY=${BUILTWITH_API_KEY}
+      - PAGESPEED_API_KEY=${PAGESPEED_API_KEY}
+      - OPEN_PAGERANK_KEY=${OPEN_PAGERANK_KEY}
+      - GOOGLE_SHEETS_ID=${GOOGLE_SHEETS_ID}
+      - GOOGLE_SHEETS_CREDENTIAL=${GOOGLE_SHEETS_CREDENTIAL}
+      - ALERT_EMAIL=${ALERT_EMAIL}
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+      - MAX_LEADS_FETCHED=${MAX_LEADS_FETCHED}
+      - TOP_LEADS_KEPT=${TOP_LEADS_KEPT}
+      - MAX_APIFY_POLL_ATTEMPTS=${MAX_APIFY_POLL_ATTEMPTS}
+      - MAX_ERRORS_BEFORE_ABORT=${MAX_ERRORS_BEFORE_ABORT}
+      - SCORE_THRESHOLD=${SCORE_THRESHOLD}
+    volumes:
+      - n8n_data:/home/node/.n8n
+volumes:
+  n8n_data:

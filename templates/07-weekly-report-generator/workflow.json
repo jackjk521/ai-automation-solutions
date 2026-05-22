@@ -1,0 +1,209 @@
+{
+  "name": "Weekly Report Generator",
+  "nodes": [
+    {
+      "id": "c179a08d-582a-4a23-899f-b6c8b3c849e6",
+      "name": "\ud83d\udcca Weekly Report Generator",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -160
+      ],
+      "parameters": {
+        "content": "## Weekly Report Generator\n\nRuns every Friday at 5pm, pulls KPIs from Google Sheets, calculates metrics, asks Claude AI to write an executive narrative, and emails a branded HTML report.\n\n**Credentials needed:**\n- Google Sheets OAuth2\n- Header Auth (Anthropic API key)\n- Gmail OAuth2",
+        "height": 260,
+        "width": 400,
+        "color": 3
+      }
+    },
+    {
+      "id": "700e543e-537d-41e7-88f4-596da2579291",
+      "name": "Every Friday 5pm",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 17 * * 5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "91ea4b60-d410-48fa-a791-dc474c4900c1",
+      "name": "Fetch Weekly Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "operation": "readRows",
+        "resource": "sheet",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_REPORT_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Weekly Data"
+        }
+      }
+    },
+    {
+      "id": "686f4055-f1ed-4812-b181-c6efdc05fb57",
+      "name": "Calculate KPI Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst rows = $input.all().map(i => i.json);\nconst now = new Date();\nconst weekAgo = new Date(now - 7*24*60*60*1000);\n\nconst thisWeek = rows.filter(r => {\n  try { return new Date(r.Date) >= weekAgo; } catch { return true; }\n});\n\nconst leads = thisWeek.filter(r => r.Type === 'Lead').length;\nconst demos = thisWeek.filter(r => r.Type === 'Demo').length;\nconst proposals = thisWeek.filter(r => r.Type === 'Proposal').length;\nconst closedDeals = thisWeek.filter(r => r.Type === 'Deal' && r.Status === 'Closed');\nconst lostDeals = thisWeek.filter(r => r.Type === 'Deal' && r.Status === 'Lost');\n\nconst revenue = closedDeals.reduce((s, r) => s + (parseFloat(r.DealValue) || 0), 0);\nconst avgDeal = closedDeals.length ? (revenue / closedDeals.length).toFixed(0) : 0;\nconst convRate = (leads + demos) ? ((closedDeals.length / (leads + demos)) * 100).toFixed(1) : 0;\n\nconst topRep = Object.entries(\n  closedDeals.reduce((acc, r) => { acc[r.SalesRep] = (acc[r.SalesRep]||0) + (parseFloat(r.DealValue)||0); return acc; }, {})\n).sort((a,b) => b[1]-a[1])[0];\n\nconst weekStr = now.toISOString().slice(0,10);\nconst dataSnippet = thisWeek.slice(0,20).map(r => \n  `${r.Date} | ${r.Type} | ${r.Status} | $${r.DealValue || 0} | ${r.SalesRep} | ${r.Client}`\n).join('\\n');\n\nreturn [{json: {\n  week_ending: weekStr,\n  total_leads: leads,\n  total_demos: demos,\n  total_proposals: proposals,\n  closed_deals: closedDeals.length,\n  lost_deals: lostDeals.length,\n  total_revenue: revenue,\n  avg_deal_size: avgDeal,\n  conversion_rate: convRate,\n  top_rep: topRep ? `${topRep[0]} ($${topRep[1].toLocaleString()})` : 'N/A',\n  data_snippet: dataSnippet\n}}];\n"
+      }
+    },
+    {
+      "id": "ee5e844f-ddd0-447f-bbb9-2f4cb9d2838d",
+      "name": "Claude AI \u2013 Generate Narrative",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-6\",\n  \"max_tokens\": 800,\n  \"system\": \"You are an executive business analyst. Write concise, insightful weekly performance narratives for a sales team. Be data-driven, highlight wins, flag concerns, and give 2-3 actionable recommendations. Keep it to 3 paragraphs.\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Write a weekly report narrative for week ending {{ $json.week_ending }}:\\n\\nKPIs:\\n- New Leads: {{ $json.total_leads }}\\n- Demos Booked: {{ $json.total_demos }}\\n- Proposals Sent: {{ $json.total_proposals }}\\n- Deals Closed: {{ $json.closed_deals }}\\n- Deals Lost: {{ $json.lost_deals }}\\n- Total Revenue: ${{ $json.total_revenue }}\\n- Avg Deal Size: ${{ $json.avg_deal_size }}\\n- Conversion Rate: {{ $json.conversion_rate }}%\\n- Top Performer: {{ $json.top_rep }}\\n\\nRaw data sample:\\n{{ $json.data_snippet }}\"}]\n}"
+      }
+    },
+    {
+      "id": "66d402f9-f09f-4ba7-8151-484269427860",
+      "name": "Build HTML Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst narrative = $input.first().json.content?.[0]?.text ?? 'No narrative generated.';\nconst m = $('Calculate KPI Metrics').first().json;\n\nconst html = `<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\">\n<style>\n  body{font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:0}\n  .container{max-width:640px;margin:24px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}\n  .header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:32px;text-align:center}\n  .header h1{margin:0;font-size:24px}\n  .header p{margin:8px 0 0;opacity:0.85;font-size:14px}\n  .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e5e7eb}\n  .kpi{background:#fff;padding:20px;text-align:center}\n  .kpi .val{font-size:28px;font-weight:700;color:#4f46e5}\n  .kpi .lbl{font-size:11px;color:#6b7280;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}\n  .section{padding:24px 32px}\n  .section h2{font-size:16px;color:#374151;border-bottom:2px solid #4f46e5;padding-bottom:8px}\n  .narrative{color:#374151;line-height:1.7;font-size:14px}\n  .footer{background:#f9fafb;padding:16px 32px;font-size:12px;color:#9ca3af;text-align:center;border-top:1px solid #e5e7eb}\n</style></head><body>\n<div class=\"container\">\n  <div class=\"header\">\n    <h1>Weekly Performance Report</h1>\n    <p>Week ending ${m.week_ending}</p>\n  </div>\n  <div class=\"kpi-grid\">\n    <div class=\"kpi\"><div class=\"val\">${m.total_leads}</div><div class=\"lbl\">New Leads</div></div>\n    <div class=\"kpi\"><div class=\"val\">${m.total_demos}</div><div class=\"lbl\">Demos</div></div>\n    <div class=\"kpi\"><div class=\"val\">${m.closed_deals}</div><div class=\"lbl\">Deals Closed</div></div>\n    <div class=\"kpi\"><div class=\"val\">$${Number(m.total_revenue).toLocaleString()}</div><div class=\"lbl\">Revenue</div></div>\n    <div class=\"kpi\"><div class=\"val\">$${Number(m.avg_deal_size).toLocaleString()}</div><div class=\"lbl\">Avg Deal</div></div>\n    <div class=\"kpi\"><div class=\"val\">${m.conversion_rate}%</div><div class=\"lbl\">Conv. Rate</div></div>\n  </div>\n  <div class=\"section\">\n    <h2>Executive Narrative</h2>\n    <div class=\"narrative\">${narrative.replace(/\\n/g,'<br>')}</div>\n  </div>\n  <div class=\"section\">\n    <h2>Top Performer</h2>\n    <p style=\"color:#374151;font-size:14px\">:trophy: ${m.top_rep}</p>\n  </div>\n  <div class=\"footer\">Generated by n8n + Claude AI &middot; ${m.week_ending}</div>\n</div></body></html>`;\n\nreturn [{json: {...$('Calculate KPI Metrics').first().json, html_report: html}}];\n"
+      }
+    },
+    {
+      "id": "c1728aae-b31c-4f54-aca9-7c9530911396",
+      "name": "Gmail \u2013 Send Weekly Report",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "operation": "send",
+        "resource": "message",
+        "sendTo": "team-leads@yourcompany.com",
+        "subject": "={{ 'Weekly Sales Report \u2013 Week ending ' + $json.week_ending }}",
+        "message": "={{ $json.html_report }}",
+        "emailType": "html"
+      }
+    }
+  ],
+  "connections": {
+    "Every Friday 5pm": {
+      "main": [
+        [
+          {
+            "node": "Fetch Weekly Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Weekly Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate KPI Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate KPI Metrics": {
+      "main": [
+        [
+          {
+            "node": "Claude AI \u2013 Generate Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude AI \u2013 Generate Narrative": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Report": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Send Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "description": "Automated weekly sales KPI report with AI narrative, delivered every Friday via email",
+    "tags": []
+  }
+}

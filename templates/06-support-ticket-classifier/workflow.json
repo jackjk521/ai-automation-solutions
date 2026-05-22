@@ -1,0 +1,407 @@
+{
+  "name": "Support Ticket Classifier",
+  "nodes": [
+    {
+      "id": "aaa9c6b9-5bde-48ec-9e38-0fe9710cc477",
+      "name": "\ud83c\udfab Support Ticket Classifier",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -160
+      ],
+      "parameters": {
+        "content": "## Support Ticket Classifier\n\nReceives tickets via webhook, uses Claude AI to classify category + priority + sentiment, routes to Slack channels, and sends customer auto-reply.\n\n**Credentials needed:**\n- Header Auth (Anthropic API key)\n- Slack API\n- Gmail OAuth2",
+        "height": 240,
+        "width": 380,
+        "color": 2
+      }
+    },
+    {
+      "id": "fdd420cf-a142-48dc-8adb-e01f6eff1c12",
+      "name": "Webhook \u2013 Receive Ticket",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-ticket",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      }
+    },
+    {
+      "id": "5b588a3a-dd3e-4f6d-ad7a-da43bcca8f21",
+      "name": "Claude AI \u2013 Classify Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-haiku-4-5-20251001\",\n  \"max_tokens\": 300,\n  \"system\": \"You are a support ticket classifier. Respond ONLY with valid JSON matching this schema: {\"category\": \"Billing|Technical|Feature Request|Bug\", \"priority\": \"High|Medium|Low\", \"sentiment\": \"Positive|Neutral|Negative\", \"summary\": \"one sentence\"}\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Classify this ticket:\\nSubject: {{ $json.body.subject }}\\nBody: {{ $json.body.body }}\\nPlan: {{ $json.body.plan }}\"}]\n}"
+      }
+    },
+    {
+      "id": "ef645d1f-2ea3-4df1-962f-807d00749b7f",
+      "name": "Parse AI Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst raw = $input.first().json.content?.[0]?.text ?? '{}';\nlet parsed = {};\ntry {\n  const match = raw.match(/\\{[\\s\\S]+\\}/);\n  parsed = JSON.parse(match ? match[0] : raw);\n} catch(e) {\n  parsed = {category: 'Technical', priority: 'Medium', sentiment: 'Neutral', summary: raw.slice(0,100)};\n}\nconst prev = $input.first().json;\nreturn [{json: {\n  ...prev,\n  category: parsed.category ?? 'Technical',\n  priority: parsed.priority ?? 'Medium',\n  sentiment: parsed.sentiment ?? 'Neutral',\n  ai_summary: parsed.summary ?? '',\n  ticket_id: prev.body?.ticket_id ?? 'TKT-'+Date.now(),\n  customer_email: prev.body?.customer_email ?? '',\n  customer_name: prev.body?.customer_name ?? 'Customer',\n  subject: prev.body?.subject ?? '',\n  plan: prev.body?.plan ?? 'Free'\n}}];\n"
+      }
+    },
+    {
+      "id": "242be998-2de1-4107-a08d-041937f5c108",
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "ea13b2c2-0eaa-4cff-9e1c-fa23367a1ded",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Billing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "55e66818-141e-4ce8-ab8f-b80b763b83a4",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Technical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "a1d58ea7-4434-44b6-aae6-7948e8d6d8d3",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Feature Request",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "1d32762c-aec5-4e3c-a05a-b7a4a15e0c52",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Bug",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            }
+          ]
+        },
+        "fallbackOutput": "extra",
+        "options": {}
+      }
+    },
+    {
+      "id": "de8082c3-b27e-4706-86b5-5f88aec1056f",
+      "name": "Slack \u2013 #billing-support",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -240
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "#billing-support",
+        "text": "={{ ':credit_card: *[' + $json.priority + ']* ' + $json.subject + '\\n*Customer:* ' + $json.customer_name + ' (' + $json.plan + ' plan)\\n*Sentiment:* ' + $json.sentiment + '\\n' + $json.ai_summary }}"
+      }
+    },
+    {
+      "id": "e17eb525-ada4-4620-a800-6588975df6dc",
+      "name": "Slack \u2013 #tech-support",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -80
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "#tech-support",
+        "text": "={{ ':wrench: *[' + $json.priority + ']* ' + $json.subject + '\\n*Customer:* ' + $json.customer_name + ' (' + $json.plan + ' plan)\\n*Sentiment:* ' + $json.sentiment + '\\n' + $json.ai_summary }}"
+      }
+    },
+    {
+      "id": "9f9f3ef9-4439-48a9-ab34-9bc0367b9151",
+      "name": "Slack \u2013 #feature-requests",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        80
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "#feature-requests",
+        "text": "={{ ':bulb: *[' + $json.priority + ']* ' + $json.subject + '\\n*Customer:* ' + $json.customer_name + '\\n' + $json.ai_summary }}"
+      }
+    },
+    {
+      "id": "7f6ed8c4-b8e7-4cab-91ab-d0b57e30da80",
+      "name": "Slack \u2013 #bug-reports",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        240
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "#bug-reports",
+        "text": "={{ ':beetle: *[' + $json.priority + ']* ' + $json.subject + '\\n*Customer:* ' + $json.customer_name + ' (' + $json.plan + ' plan)\\n*Sentiment:* ' + $json.sentiment + '\\n' + $json.ai_summary }}"
+      }
+    },
+    {
+      "id": "405a36e6-7253-4567-8525-7a7eeaa4febc",
+      "name": "Slack \u2013 #general-support",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        400
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "#general-support",
+        "text": "={{ ':speech_balloon: *[' + $json.priority + ']* ' + $json.subject + '\\n*Category:* ' + $json.category + '\\n*Customer:* ' + $json.customer_name }}"
+      }
+    },
+    {
+      "id": "bf2aa119-29dc-4c01-94b8-f478c1ebb929",
+      "name": "Gmail \u2013 Auto Acknowledgement",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        80
+      ],
+      "parameters": {
+        "operation": "send",
+        "resource": "message",
+        "sendTo": "={{ $json.customer_email }}",
+        "subject": "={{ 'Re: ' + $json.subject + ' [' + $json.ticket_id + ']' }}",
+        "message": "={{ '<div style=\"font-family:Arial,sans-serif;max-width:600px\"><p>Hi ' + $json.customer_name + ',</p><p>Thank you for reaching out. We have received your support request and our team will be in touch shortly.</p><table style=\"border-collapse:collapse;width:100%\"><tr><td style=\"padding:8px;border:1px solid #ddd\"><b>Ticket ID</b></td><td style=\"padding:8px;border:1px solid #ddd\">' + $json.ticket_id + '</td></tr><tr><td style=\"padding:8px;border:1px solid #ddd\"><b>Category</b></td><td style=\"padding:8px;border:1px solid #ddd\">' + $json.category + '</td></tr><tr><td style=\"padding:8px;border:1px solid #ddd\"><b>Priority</b></td><td style=\"padding:8px;border:1px solid #ddd\">' + $json.priority + '</td></tr></table><p>Expected response times:<br>High priority: 2 hours<br>Medium priority: 8 hours<br>Low priority: 24 hours</p><p>Best regards,<br>Support Team</p></div>' }}",
+        "emailType": "html"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook \u2013 Receive Ticket": {
+      "main": [
+        [
+          {
+            "node": "Claude AI \u2013 Classify Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude AI \u2013 Classify Ticket": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Classification": {
+      "main": [
+        [
+          {
+            "node": "Route by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Category": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 #billing-support",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack \u2013 #tech-support",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack \u2013 #feature-requests",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack \u2013 #bug-reports",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack \u2013 #general-support",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 #billing-support": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Auto Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 #tech-support": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Auto Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 #feature-requests": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Auto Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 #bug-reports": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Auto Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 #general-support": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Auto Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "description": "AI-powered support ticket classification, Slack routing, and customer auto-acknowledgement",
+    "tags": []
+  }
+}

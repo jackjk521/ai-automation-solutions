@@ -1,0 +1,417 @@
+{
+  "name": "Client Onboarding Sequence",
+  "nodes": [
+    {
+      "id": "9008092c-45d4-40e4-8001-a81c3d949d3a",
+      "name": "\ud83c\udf89 Client Onboarding Sequence",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -200
+      ],
+      "parameters": {
+        "content": "## Client Onboarding Sequence\n\nTriggered when a new client is marked active. Sends welcome email + creates Notion workspace immediately, then Day 1 / Day 3 / Day 7 follow-ups with Slack alerts and a completion log.\n\n**Credentials needed:**\n- Gmail OAuth2\n- Notion API\n- Slack API\n- Google Sheets OAuth2",
+        "height": 280,
+        "width": 420,
+        "color": 4
+      }
+    },
+    {
+      "id": "2cd415ab-3851-4ca6-837d-b22bd4bc89d9",
+      "name": "Webhook \u2013 New Client Active",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "client-onboarding",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      }
+    },
+    {
+      "id": "18c42638-fd26-4ef7-a949-16c389b7c61b",
+      "name": "Extract Client Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aad9b013-ae8e-492e-be32-72a780075cf8",
+              "name": "client_name",
+              "type": "string",
+              "value": "={{ $json.body.client_name }}"
+            },
+            {
+              "id": "e71f92d2-e810-4ff1-9b48-d4c4a1b2916b",
+              "name": "contact_name",
+              "type": "string",
+              "value": "={{ $json.body.contact_name }}"
+            },
+            {
+              "id": "2ed6ba8e-2b1f-46a4-8570-613baf53539c",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "id": "13698fb5-b9ee-4012-aab8-e6be816782df",
+              "name": "plan",
+              "type": "string",
+              "value": "={{ $json.body.plan }}"
+            },
+            {
+              "id": "f105cfcc-8036-4c70-a09d-105b511f9604",
+              "name": "account_manager",
+              "type": "string",
+              "value": "={{ $json.body.account_manager }}"
+            },
+            {
+              "id": "53a749bc-7426-4bfe-ae0f-262a024b896a",
+              "name": "am_slack_id",
+              "type": "string",
+              "value": "={{ $json.body.am_slack_id }}"
+            },
+            {
+              "id": "a347c9e5-3b33-4462-af2a-9dc29510a7a0",
+              "name": "onboarding_start",
+              "type": "string",
+              "value": "={{ new Date().toISOString().slice(0,10) }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "062c3e1e-ea9d-4c81-9192-85ab6323d360",
+      "name": "Gmail \u2013 Welcome Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        -160
+      ],
+      "parameters": {
+        "operation": "send",
+        "resource": "message",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ 'Welcome to the team, ' + $json.contact_name + '!' }}",
+        "message": "={{ '<div style=\"font-family:Arial,sans-serif;max-width:600px\"><div style=\"background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:40px;text-align:center\"><h1 style=\"color:#fff;margin:0\">Welcome, ' + $json.contact_name + '!</h1></div><div style=\"padding:32px\"><p>We are thrilled to have <strong>' + $json.client_name + '</strong> on the <strong>' + $json.plan + '</strong> plan.</p><p>Your dedicated account manager is <strong>' + $json.account_manager + '</strong>, who will be in touch shortly.</p><h3>What happens next?</h3><ul><li>Day 1: Getting Started guide arrives in your inbox</li><li>Day 3: Your account manager will check in via Slack</li><li>Day 7: Week-one review and Q&A</li></ul><p>In the meantime, feel free to explore our help center or reply to this email with any questions.</p><p>Best regards,<br>The Onboarding Team</p></div></div>' }}",
+        "emailType": "html"
+      }
+    },
+    {
+      "id": "45f83c8a-2ad9-4e85-9d38-1d68a55146a5",
+      "name": "Create Notion Onboarding Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        80
+      ],
+      "parameters": {
+        "operation": "create",
+        "resource": "page",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_NOTION_ONBOARDING_DB_ID"
+        },
+        "title": "={{ $json.client_name + ' \u2013 Onboarding' }}",
+        "propertiesUi": {
+          "propertyValues": []
+        }
+      }
+    },
+    {
+      "id": "602c5b5d-b70e-43a3-9ea1-81642e0afeb1",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        0
+      ],
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      }
+    },
+    {
+      "id": "31769d80-53fe-434a-9403-2c2245c72a2b",
+      "name": "Gmail \u2013 Getting Started Guide",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1000,
+        -100
+      ],
+      "parameters": {
+        "operation": "send",
+        "resource": "message",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ 'Your Getting Started Guide \u2013 ' + $json.client_name }}",
+        "message": "={{ '<div style=\"font-family:Arial,sans-serif;max-width:600px;padding:32px\"><h2>Hi ' + $json.contact_name + ', let\\'s get you set up!</h2><p>Here are your first steps to get the most out of your ' + $json.plan + ' plan:</p><ol><li><strong>Complete your profile</strong> \u2013 add your team members and billing details</li><li><strong>Connect your first integration</strong> \u2013 follow the quick-start guide in your dashboard</li><li><strong>Schedule onboarding call</strong> \u2013 book a 30-min session with ' + $json.account_manager + '</li><li><strong>Join our Slack community</strong> \u2013 get answers from 1,000+ users</li></ol><p>Resources:<br>\ud83d\udcda Documentation: <a href=\"#\">docs.yourapp.com</a><br>\ud83c\udfa5 Video tutorials: <a href=\"#\">learn.yourapp.com</a></p><p>Best,<br>' + $json.account_manager + '</p></div>' }}",
+        "emailType": "html"
+      }
+    },
+    {
+      "id": "7d9c7cd1-3958-4ae5-b350-d1920676743e",
+      "name": "Wait 2 More Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        100
+      ],
+      "parameters": {
+        "amount": 2,
+        "unit": "days"
+      }
+    },
+    {
+      "id": "de8f4d54-0067-4e2a-832a-ae5163a286dc",
+      "name": "Slack \u2013 Notify Account Manager",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        0
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "={{ $json.am_slack_id }}",
+        "text": "={{ ':wave: *Day 3 check-in reminder* for *' + $json.client_name + '*\\nContact: ' + $json.contact_name + ' (' + $json.email + ')\\nPlan: ' + $json.plan + '\\nOnboarding started: ' + $json.onboarding_start }}"
+      }
+    },
+    {
+      "id": "79cdf754-9b46-44f3-ad70-2e9170b6452e",
+      "name": "Wait 4 More Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1480,
+        0
+      ],
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      }
+    },
+    {
+      "id": "9cb678eb-f815-442c-a6f6-084e3fd1dad2",
+      "name": "Gmail \u2013 Week-One Check-In",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1720,
+        0
+      ],
+      "parameters": {
+        "operation": "send",
+        "resource": "message",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ 'How\\'s your first week going? \u2013 ' + $json.client_name }}",
+        "message": "={{ '<div style=\"font-family:Arial,sans-serif;max-width:600px;padding:32px\"><h2>Hi ' + $json.contact_name + ',</h2><p>You\\'ve been with us for a week now \u2014 congratulations on completing your first week on the ' + $json.plan + ' plan!</p><p>We\\'d love to hear how things are going:</p><ul><li>Have you been able to set up your first workflow?</li><li>Any questions or blockers we can help with?</li><li>What features would you like to explore next?</li></ul><p>Reply to this email or book a call: <a href=\"#\">calendly.com/your-link</a></p><p>Best,<br>' + $json.account_manager + '<br>Your Account Manager</p></div>' }}",
+        "emailType": "html"
+      }
+    },
+    {
+      "id": "890cacc1-a0f4-4e97-bcf9-b2b48eeaa043",
+      "name": "Build Completion Log Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nreturn [{json: {\n  'Client Name': $json.client_name,\n  'Contact Name': $json.contact_name,\n  'Email': $json.email,\n  'Plan': $json.plan,\n  'Account Manager': $json.account_manager,\n  'Onboarding Start': $json.onboarding_start,\n  'Sequence Completed': new Date().toISOString().slice(0,10),\n  'Status': 'Complete'\n}}];\n"
+      }
+    },
+    {
+      "id": "d102b458-7b64-48b1-8606-989287345957",
+      "name": "Google Sheets \u2013 Log Completion",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "operation": "append",
+        "resource": "sheet",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_ONBOARDING_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Onboarded Clients"
+        },
+        "columnToMatchOn": "A",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook \u2013 New Client Active": {
+      "main": [
+        [
+          {
+            "node": "Extract Client Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Client Fields": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Welcome Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Notion Onboarding Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail \u2013 Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Notion Onboarding Page": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Day": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Getting Started Guide",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait 2 More Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail \u2013 Getting Started Guide": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Notify Account Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 More Days": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Notify Account Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 Notify Account Manager": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 More Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 More Days": {
+      "main": [
+        [
+          {
+            "node": "Gmail \u2013 Week-One Check-In",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail \u2013 Week-One Check-In": {
+      "main": [
+        [
+          {
+            "node": "Build Completion Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Completion Log Row": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets \u2013 Log Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "description": "Automated 7-day client onboarding: welcome email, Notion workspace, Day-1/3/7 touchpoints, and completion logging",
+    "tags": []
+  }
+}

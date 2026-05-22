@@ -1,0 +1,491 @@
+{
+  "name": "Slack Project Notifications",
+  "nodes": [
+    {
+      "id": "9a5bf8d8-99d5-4d2a-91b5-ad0892f91adf",
+      "name": "\ud83d\udccc Slack Project Notifications",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -160
+      ],
+      "parameters": {
+        "content": "## Slack Project Notifications\n\nReceives GitHub / Jira / Trello webhooks, identifies event type, formats a clean Slack message, posts to the correct channel, and logs every event to Google Sheets.\n\n**Credentials needed:**\n- Slack API (chat:write)\n- Google Sheets OAuth2",
+        "height": 240,
+        "width": 360,
+        "color": 5
+      }
+    },
+    {
+      "id": "3d20a565-9462-4393-8308-58651fc867d8",
+      "name": "Webhook \u2013 Receive Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "slack-project-notif",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      }
+    },
+    {
+      "id": "8c7f32c9-690b-4024-a502-c7d5f28f68d9",
+      "name": "Detect Event Source & Type",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst body = $input.first().json.body ?? $input.first().json;\nlet source = 'unknown';\nlet eventType = 'unknown';\nlet title = '';\nlet actor = '';\nlet url = '';\nlet repo = '';\n\n// GitHub detection\nif (body.repository && body.sender) {\n  source = 'github';\n  actor = body.sender.login;\n  repo = body.repository.full_name;\n  if (body.pull_request) {\n    eventType = body.action === 'opened' ? 'PR Opened' : body.action === 'closed' && body.pull_request.merged ? 'PR Merged' : 'PR ' + body.action;\n    title = body.pull_request.title;\n    url = body.pull_request.html_url;\n  } else if (body.issue) {\n    eventType = 'Issue ' + body.action;\n    title = body.issue.title;\n    url = body.issue.html_url;\n  } else if (body.commits) {\n    eventType = 'Push';\n    title = `${body.commits.length} commit(s) to ${body.ref}`;\n    url = body.compare;\n  }\n}\n// Jira detection\nelse if (body.issue && body.issue.fields) {\n  source = 'jira';\n  eventType = body.webhookEvent?.replace('jira:','') ?? 'issue_event';\n  actor = body.user?.displayName ?? 'Jira User';\n  title = body.issue.fields.summary;\n  url = `https://your-jira.atlassian.net/browse/${body.issue.key}`;\n  repo = body.issue.fields.project?.name ?? '';\n}\n// Trello detection\nelse if (body.action && body.action.type) {\n  source = 'trello';\n  eventType = body.action.type;\n  actor = body.action.memberCreator?.fullName ?? 'Trello User';\n  title = body.action.data?.card?.name ?? body.action.data?.board?.name ?? '';\n  url = `https://trello.com/c/${body.action.data?.card?.shortLink ?? ''}`;\n  repo = body.action.data?.board?.name ?? '';\n}\n\nreturn [{json: {source, eventType, title, actor, url, repo, timestamp: new Date().toISOString()}}];\n"
+      }
+    },
+    {
+      "id": "da4df635-91e8-445f-97cb-64ba7457cda7",
+      "name": "Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "da6f553f-88c0-4313-8645-093b5d6a8360",
+                    "leftValue": "={{ $json.eventType }}",
+                    "rightValue": "PR Opened",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "cfe73f4c-b17a-4e0a-b1f6-ba67b0f63da6",
+                    "leftValue": "={{ $json.eventType }}",
+                    "rightValue": "PR Merged",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "eed80e9f-ba8f-4438-992d-8551f21d38d0",
+                    "leftValue": "={{ $json.eventType }}",
+                    "rightValue": "Issue opened",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            },
+            {
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "a179cadd-a770-4bfa-a414-3a640e6f571b",
+                    "leftValue": "={{ $json.eventType }}",
+                    "rightValue": "Push",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": false
+            }
+          ]
+        },
+        "fallbackOutput": "extra",
+        "options": {}
+      }
+    },
+    {
+      "id": "963b1e65-02ff-481c-a617-7472d42c1f26",
+      "name": "Format: PR Opened",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        -200
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a742d533-73dd-4e49-a213-4755d700bb1a",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#dev-notifications"
+            },
+            {
+              "id": "d6e1eb79-af7c-4f61-a9e5-29e76215c575",
+              "name": "slack_text",
+              "type": "string",
+              "value": "={{ ':rocket: *PR Opened* by ' + $json.actor + ' in `' + $json.repo + '`\\n*' + $json.title + '*\\n' + $json.url }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d731987a-aa3f-4341-a059-f5abbd8db57b",
+      "name": "Format: PR Merged",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        -60
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2d2ef2eb-cfd7-4d8b-aa02-e5b9d1b7b0c0",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#dev-notifications"
+            },
+            {
+              "id": "be691598-0a8a-4b55-9128-11c316c59a42",
+              "name": "slack_text",
+              "type": "string",
+              "value": "={{ ':white_check_mark: *PR Merged* by ' + $json.actor + ' in `' + $json.repo + '`\\n*' + $json.title + '*\\n' + $json.url }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "eacbe7f5-fb93-45ae-936b-4de1fa3ba4a3",
+      "name": "Format: Issue Opened",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        80
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "30facf3d-9e05-4485-907b-b7801d3f4e90",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#project-issues"
+            },
+            {
+              "id": "6d58f1ea-bf8d-4ced-9a21-6e5feaff738c",
+              "name": "slack_text",
+              "type": "string",
+              "value": "={{ ':bug: *Issue Opened* by ' + $json.actor + '\\n*' + $json.title + '*\\n' + $json.url }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2f549eb7-508c-47f7-a7c0-a0a984852c36",
+      "name": "Format: Push",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        220
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5f4e8507-2c6b-4d8d-9cbd-d3f25221a4cd",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#dev-notifications"
+            },
+            {
+              "id": "795928dd-cca9-4c66-b3e4-1113fac2e7f6",
+              "name": "slack_text",
+              "type": "string",
+              "value": "={{ ':arrow_up: *Push* by ' + $json.actor + ' in `' + $json.repo + '`\\n' + $json.title + '\\n' + $json.url }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fa3cdfb3-930c-4df0-9da9-9f3fb0f1a66d",
+      "name": "Format: Other Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        360
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0c145e9-69fd-4fdd-93a7-8178e90d7e14",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#dev-notifications"
+            },
+            {
+              "id": "3fbb69c4-33df-4567-9637-cd58e868ed35",
+              "name": "slack_text",
+              "type": "string",
+              "value": "={{ ':bell: *' + $json.eventType + '* from ' + $json.source + ' by ' + $json.actor + '\\n' + $json.title }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "15612368-978d-4444-8c75-0703754145f6",
+      "name": "Slack \u2013 Post Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        80
+      ],
+      "parameters": {
+        "operation": "post",
+        "resource": "message",
+        "channel": "={{ $json.slack_channel }}",
+        "text": "={{ $json.slack_text }}"
+      }
+    },
+    {
+      "id": "fcc10dc5-8b9b-4705-abff-707771150067",
+      "name": "Build Audit Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        80
+      ],
+      "parameters": {
+        "jsCode": "\nreturn [{json: {\n  Timestamp: $json.timestamp,\n  'Event Type': $json.eventType,\n  'Repository/Project': $json.repo,\n  Actor: $json.actor,\n  Title: $json.title,\n  URL: $json.url,\n  'Channel Posted': $json.slack_channel\n}}];\n"
+      }
+    },
+    {
+      "id": "edda3de2-3d78-4460-84fb-2c555642d506",
+      "name": "Google Sheets \u2013 Audit Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1440,
+        80
+      ],
+      "parameters": {
+        "operation": "append",
+        "resource": "sheet",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AUDIT_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Events"
+        },
+        "columnToMatchOn": "A",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook \u2013 Receive Event": {
+      "main": [
+        [
+          {
+            "node": "Detect Event Source & Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Event Source & Type": {
+      "main": [
+        [
+          {
+            "node": "Route by Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Event Type": {
+      "main": [
+        [
+          {
+            "node": "Format: PR Opened",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: PR Merged",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Issue Opened",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Push",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format: Other Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: PR Opened": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Post Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: PR Merged": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Post Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Issue Opened": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Post Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Push": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Post Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format: Other Event": {
+      "main": [
+        [
+          {
+            "node": "Slack \u2013 Post Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack \u2013 Post Notification": {
+      "main": [
+        [
+          {
+            "node": "Build Audit Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Audit Row": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets \u2013 Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "description": "Routes GitHub/Jira/Trello webhooks to Slack channels with formatted messages and Google Sheets audit log",
+    "tags": []
+  }
+}
