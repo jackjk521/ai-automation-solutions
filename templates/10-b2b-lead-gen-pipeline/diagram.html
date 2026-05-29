@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B2B Lead Gen Pipeline — Workflow Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f1117;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+    .page-header {
+      max-width: 1400px;
+      margin: 0 auto 32px;
+    }
+    .page-header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8, #a78bfa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .page-header p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      max-width: 1400px;
+      margin: 0 auto 28px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .diagram-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #161b27;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 28px;
+      overflow-x: auto;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+    /* Override mermaid SVG text colors */
+    .mermaid svg {
+      background: transparent !important;
+    }
+    .key-notes {
+      max-width: 1400px;
+      margin: 28px auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .note-card {
+      background: #161b27;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .note-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #818cf8;
+      margin-bottom: 6px;
+    }
+    .note-card p {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    .note-card code {
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      background: #0f1117;
+      color: #a78bfa;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>B2B Lead Gen Pipeline — Workflow Diagram</h1>
+    <p>Template 10 &nbsp;·&nbsp; 44 functional nodes &nbsp;·&nbsp; 11 sections &nbsp;·&nbsp; Universal LLM router (DeepSeek / Anthropic / OpenAI / Groq)</p>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4f46e5"></div>Trigger / Config</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0891b2"></div>Apify Search</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0d9488"></div>Deduplication</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>LLM Call</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#b45309"></div>Enrichment Loop</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#15803d"></div>Scoring</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div>Sheets / Output</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#be185d"></div>Email Digest</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#b91c1c"></div>Error Logger</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1e1b4b', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#4f46e5', 'lineColor': '#4b5563', 'secondaryColor': '#0f172a', 'tertiaryColor': '#111827', 'edgeLabelBackground': '#1f2937', 'clusterBkg': '#161b27', 'clusterBorder': '#374151', 'titleColor': '#a78bfa', 'nodeBorder': '#374151', 'mainBkg': '#1e293b', 'fontFamily': '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif', 'fontSize': '13px'}}}%%
+flowchart TD
+
+    %% ─── SECTION 1: TRIGGER & CONFIG ────────────────────────────────────────
+    subgraph S1["① Trigger & Config"]
+        direction TB
+        SCHED(["🕐 Schedule Trigger"])
+        FORM(["📋 Form Trigger"])
+        CFGSHEET["📊 Read Config Sheet"]
+        FILTER["⚙️ Filter Active Rows"]
+        INIT_STATE["🔧 Init Run State"]
+        INIT_VARS["🔧 Init Workflow Vars\nerrorCount = 0\nscoredLeads = []"]
+        SPLIT_CFG[/"↔ Split Config Rows\nbatchSize: 1"/]
+    end
+
+    %% ─── SECTION 2: APIFY SEARCH ─────────────────────────────────────────────
+    subgraph S2["② Apify Google Maps Search"]
+        direction TB
+        APIFY_START["🌐 Start Apify\nMaps Run"]
+        APIFY_POLL["⏳ Poll Apify Run\nbounded loop × 15, 10s"]
+        APIFY_CHECK{{"✅ Maps Run\nSucceeded?"}}
+        APIFY_FETCH["📥 Fetch Apify\nDataset"]
+        NORMALIZE["🔄 Normalize Leads"]
+    end
+
+    %% ─── SECTION 3: DEDUPLICATION ────────────────────────────────────────────
+    subgraph S3["③ Deduplication"]
+        direction TB
+        READ_URLS["📊 Read All\nExisting URLs"]
+        FILTER_FRESH["🧹 Filter Fresh\nLeads Only"]
+        CHECK_FRESH{{"📋 Any Fresh\nLeads?"}}
+    end
+
+    %% ─── SECTION 4: INDUSTRY OVERVIEW LLM ────────────────────────────────────
+    subgraph S4["④ Industry Overview  (1 LLM call per niche)"]
+        direction LR
+        BUILD_IND["📝 Build Industry\nPrompt"]
+        LLM_IND_R["🔀 LLM Router\n(Universal)"]
+        HTTP_IND["🤖 HTTP LLM\nIndustry Call"]
+        PARSE_IND["⚙️ Parse Industry\nResponse"]
+    end
+
+    %% ─── SECTION 5: PER-LEAD ENRICHMENT ─────────────────────────────────────
+    subgraph S5["⑤ Per-Lead Enrichment  (loop per lead)"]
+        direction LR
+        SPLIT_LEADS[/"↔ Split Leads\nfor Enrichment"/]
+        CIRCUIT["⚡ Circuit Breaker\nCheck errorCount"]
+        CHECK_ABORT{{"🛑 Abort?"}}
+        PAGESPEED["⚡ PageSpeed\nInsights API"]
+        EXTRACT_PS["⚙️ Extract\nPageSpeed Data"]
+        PAGERANK["📈 Open\nPageRank API"]
+        EXTRACT_PR["⚙️ Extract\nPageRank Data"]
+    end
+
+    %% ─── SECTION 6: LLM SCORING ─────────────────────────────────────────────
+    subgraph S6["⑥ LLM Scoring  (5 dimensions, 100 pts)"]
+        direction LR
+        BUILD_SCORE["📝 Build Scoring\nPrompt"]
+        LLM_SCORE_R["🔀 LLM Router\n(Universal)"]
+        HTTP_SCORE["🤖 HTTP LLM\nScoring Call"]
+        PARSE_SCORE["⚙️ Parse Scoring\nResponse"]
+    end
+
+    %% ─── SECTION 7: RANK ─────────────────────────────────────────────────────
+    subgraph S7["⑦ Rank & Select Top N"]
+        ACCUM["📊 Accumulate & Rank\n$workflow.vars.scoredLeads\ntiebreak: non-local first"]
+    end
+
+    %% ─── SECTION 8: SHEETS + SCORE GATE ─────────────────────────────────────
+    subgraph S8["⑧ Sheets Write + Score Gate"]
+        direction LR
+        APPEND_SHEET["📊 Append Lead\nto Google Sheets"]
+        SCORE_GATE{{"🎯 Score ≥\nTHRESHOLD?"}}
+    end
+
+    %% ─── SECTION 9: MVP HTML → VERCEL ───────────────────────────────────────
+    subgraph S9["⑨ MVP HTML Generation → Vercel"]
+        direction LR
+        BUILD_MVP["📝 Build MVP\nHTML Request"]
+        LLM_MVP_R["🔀 LLM Router\n(Universal)"]
+        HTTP_MVP["🤖 HTTP LLM\nMVP Call"]
+        PARSE_MVP["⚙️ Parse MVP\nHTML"]
+        DEPLOY["🚀 Deploy to\nVercel"]
+        EXTRACT_URL["🔗 Extract\nVercel URL"]
+        SAVE_URL["📊 Save MVP\nURL to Sheets"]
+    end
+
+    %% ─── SECTION 10: EMAIL DIGEST ────────────────────────────────────────────
+    subgraph S10["⑩ Email Digest"]
+        direction LR
+        BUILD_DIGEST["📧 Build\nDigest Email"]
+        SEND_DIGEST["✉️ Send Digest\nvia Gmail"]
+    end
+
+    %% ─── SECTION 11: ERROR LOGGER ────────────────────────────────────────────
+    subgraph S11["⑪ Error Logger  (wired to ALL node error outputs)"]
+        direction LR
+        ERR_LOG["⚠️ Error Logger\n++errorCount"]
+        ERR_SHEET["📊 Write Error\nto Sheets"]
+    end
+
+    %% ─── CONNECTIONS ─────────────────────────────────────────────────────────
+
+    SCHED --> CFGSHEET
+    FORM  --> CFGSHEET
+    CFGSHEET --> FILTER --> INIT_STATE --> INIT_VARS --> SPLIT_CFG
+
+    SPLIT_CFG --> APIFY_START
+    APIFY_START --> APIFY_POLL --> APIFY_CHECK
+    APIFY_CHECK -- "✅ SUCCEEDED" --> APIFY_FETCH --> NORMALIZE
+    APIFY_CHECK -- "❌ FAILED/timeout" --> ERR_LOG
+
+    NORMALIZE --> READ_URLS --> FILTER_FRESH --> CHECK_FRESH
+    CHECK_FRESH -- "❌ No new leads" --> ERR_LOG
+    CHECK_FRESH -- "✅ Has fresh leads" --> BUILD_IND
+
+    BUILD_IND --> LLM_IND_R --> HTTP_IND --> PARSE_IND
+
+    PARSE_IND --> SPLIT_LEADS --> CIRCUIT --> CHECK_ABORT
+    CHECK_ABORT -- "🛑 YES — abort" --> BUILD_DIGEST
+    CHECK_ABORT -- "✅ NO — continue" --> PAGESPEED
+    PAGESPEED --> EXTRACT_PS --> PAGERANK --> EXTRACT_PR
+
+    EXTRACT_PR --> BUILD_SCORE --> LLM_SCORE_R --> HTTP_SCORE --> PARSE_SCORE
+
+    PARSE_SCORE --> ACCUM
+
+    ACCUM --> APPEND_SHEET --> SCORE_GATE
+    SCORE_GATE -- "✅ High score" --> BUILD_MVP
+    SCORE_GATE -- "⬇️ Low priority" --> BUILD_DIGEST
+
+    BUILD_MVP --> LLM_MVP_R --> HTTP_MVP --> PARSE_MVP --> DEPLOY --> EXTRACT_URL --> SAVE_URL --> BUILD_DIGEST
+
+    BUILD_DIGEST --> SEND_DIGEST
+
+    ERR_LOG --> ERR_SHEET
+
+    %% ─── STYLES ──────────────────────────────────────────────────────────────
+
+    classDef trigger    fill:#312e81,stroke:#4f46e5,color:#e0e7ff
+    classDef config     fill:#1e1b4b,stroke:#4338ca,color:#c7d2fe
+    classDef apify      fill:#164e63,stroke:#0891b2,color:#cffafe
+    classDef dedup      fill:#134e4a,stroke:#0d9488,color:#ccfbf1
+    classDef llm        fill:#2e1065,stroke:#7c3aed,color:#ede9fe
+    classDef enrich     fill:#451a03,stroke:#b45309,color:#fef3c7
+    classDef score      fill:#052e16,stroke:#15803d,color:#dcfce7
+    classDef sheets     fill:#1e3a5f,stroke:#1d4ed8,color:#dbeafe
+    classDef email      fill:#500724,stroke:#be185d,color:#fce7f3
+    classDef error      fill:#450a0a,stroke:#b91c1c,color:#fee2e2
+    classDef decision   fill:#0f172a,stroke:#475569,color:#e2e8f0
+
+    class SCHED,FORM trigger
+    class CFGSHEET,FILTER,INIT_STATE,INIT_VARS,SPLIT_CFG config
+    class APIFY_START,APIFY_POLL,APIFY_FETCH,NORMALIZE apify
+    class APIFY_CHECK decision
+    class READ_URLS,FILTER_FRESH dedup
+    class CHECK_FRESH,CHECK_ABORT,SCORE_GATE decision
+    class BUILD_IND,LLM_IND_R,HTTP_IND,PARSE_IND llm
+    class SPLIT_LEADS,CIRCUIT,PAGESPEED,EXTRACT_PS,PAGERANK,EXTRACT_PR enrich
+    class BUILD_SCORE,LLM_SCORE_R,HTTP_SCORE,PARSE_SCORE score
+    class ACCUM,APPEND_SHEET,SAVE_URL sheets
+    class BUILD_MVP,LLM_MVP_R,HTTP_MVP,PARSE_MVP,DEPLOY,EXTRACT_URL llm
+    class BUILD_DIGEST,SEND_DIGEST email
+    class ERR_LOG,ERR_SHEET error
+    </div>
+  </div>
+
+  <div class="key-notes">
+    <div class="note-card">
+      <h3>🔀 Universal LLM Router (×3)</h3>
+      <p>The same Code node pattern is reused for Industry Overview, Lead Scoring, and MVP HTML generation. Switch provider by changing <code>LLM_PROVIDER</code>, <code>LLM_BASE_URL</code>, <code>LLM_MODEL</code>, <code>LLM_API_KEY</code> — no workflow edits needed.</p>
+    </div>
+    <div class="note-card">
+      <h3>⚡ Circuit Breaker</h3>
+      <p>Before each lead is enriched, a Code node reads <code>$workflow.vars.errorCount</code>. If errors ≥ <code>MAX_ERRORS_BEFORE_ABORT</code> (default 5), the Check Abort node jumps directly to the Email Digest, skipping remaining leads gracefully.</p>
+    </div>
+    <div class="note-card">
+      <h3>⏳ Bounded Apify Poll</h3>
+      <p>A <code>for</code> loop inside a single Code node polls the Apify run status up to <code>MAX_APIFY_POLL_ATTEMPTS</code> times (default 15) with 10-second waits. No n8n Loop nodes — prevents infinite execution hangs.</p>
+    </div>
+    <div class="note-card">
+      <h3>📊 Accumulator Pattern</h3>
+      <p>Each scored lead is pushed into <code>$workflow.vars.scoredLeads</code>. Once all leads complete, the array is sorted by total score (tiebreak: non-local businesses first, then expansion_score). Only the top <code>TOP_LEADS_KEPT</code> proceed.</p>
+    </div>
+    <div class="note-card">
+      <h3>🎯 Score Gate</h3>
+      <p>Only leads with <code>total ≥ SCORE_THRESHOLD</code> (default 70/100) get an AI-generated MVP HTML page deployed to Vercel. Lower-scoring leads are still saved to Sheets but skip the Vercel step and route directly to the Email Digest.</p>
+    </div>
+    <div class="note-card">
+      <h3>⚠️ Single Error Sink</h3>
+      <p>Every node's error output is wired to the same Error Logger node. It increments <code>$workflow.vars.errorCount</code> and appends to the Errors tab in Google Sheets — so every failure is logged even when the circuit breaker hasn't triggered yet.</p>
+    </div>
+    <div class="note-card">
+      <h3>🔢 Scoring Dimensions (100 pts)</h3>
+      <p><strong>tech_score</strong> (25) — modern stack vs legacy CMS<br>
+      <strong>seo_score</strong> (25) — PageSpeed + PageRank signals<br>
+      <strong>brand_score</strong> (25) — site quality + brand clarity<br>
+      <strong>sales_readiness</strong> (25) — decision-maker accessibility<br>
+      + <strong>local_business</strong> flag (filters pure local from outreach list)</p>
+    </div>
+    <div class="note-card">
+      <h3>📁 Google Sheets — 3-Tab Schema</h3>
+      <p><strong>Config tab</strong> — niche, region, active flag, run schedule<br>
+      <strong>Leads tab</strong> — all scored leads with Vercel URLs + scores<br>
+      <strong>Errors tab</strong> — timestamped error log per run</p>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        useMaxWidth: false,
+      },
+      securityLevel: 'loose',
+    });
+  </script>
+</body>
+</html>

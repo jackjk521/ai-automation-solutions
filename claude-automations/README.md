@@ -1,6 +1,6 @@
 # Claude AI Automation Library
 
-20 standalone Python automations powered by the [Anthropic Claude API](https://docs.anthropic.com/). Each script runs independently — no n8n, no workflow engine, no infrastructure required. Just Python, your API key, and a terminal.
+21 standalone Python automations powered by the [Anthropic Claude API](https://docs.anthropic.com/). Each script runs independently — no n8n, no workflow engine, no infrastructure required. Just Python, your API key, and a terminal.
 
 **Author:** Jed Abner Chu · [aceinternational.solutions](https://aceinternational.solutions)
 
@@ -43,6 +43,7 @@ All scripts run the built-in example data by default. Pass your own data by impo
 | 18 | [Data Extractor](#18-data-extractor) | Data | Sonnet | Unstructured text → structured JSON |
 | 19 | [FAQ Builder](#19-faq-builder) | Support | Sonnet | Source docs → searchable FAQ pairs |
 | 20 | [Web Presence Analyzer](#20-web-presence-analyzer) | Lead Gen | Sonnet | Business data → score + outreach email |
+| 21 | [Social Trend Newsletter](#21-social-trend-newsletter) | Research | Sonnet | Weekly F&B / Active Lifestyle / Shopping trends → HTML newsletter |
 
 ---
 
@@ -142,6 +143,11 @@ Mines source content (docs, tickets, calls) to generate categorised, keyword-tag
 
 ### 20 Web Presence Analyzer
 Scores business web presence (0–10), identifies modernisation opportunities, and generates a personalised outreach email.
+
+### 21 Social Trend Newsletter
+Runs weekly across **F&B**, **Active Lifestyle**, and **Shopping** for both Philippines and International markets. Two parallel agents — a Google Custom Search scraper (18 queries scoped to Reddit, TikTok, Instagram) and a Claude research analyst — feed a synthesis agent that produces a comprehensive HTML newsletter with cited sources, emailed automatically.
+
+**Extra env vars required:** `GOOGLE_CSE_API_KEY`, `GOOGLE_CSE_ID`, `EMAIL_FROM`, `EMAIL_APP_PASSWORD`, `EMAIL_TO`
 
 ---
 
