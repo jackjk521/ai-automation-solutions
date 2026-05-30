@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Forge — Client Build Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16130f; --ink-2:#1f1b16; --panel:#211c16; --line:#3a322a;
+    --paper:#f3ece0; --muted:#a99c88; --soft:#cdbfa9;
+    --amber:#e08a3c; --amber-2:#f0a85a; --teal:#5ec7b8; --rose:#e07a6a;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(224,138,60,.10), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(94,199,184,.08), transparent 55%),
+      var(--ink);
+    color:var(--paper);
+    font-family:"Hanken Grotesk",sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:34px 26px 80px}
+  header.top{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:26px}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .mark{font-family:"Fraunces",serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);padding:4px 9px;border-radius:6px}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,4vw,44px);margin:0;line-height:1.02;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--amber-2)}
+  .sub{color:var(--muted);font-size:14.5px;max-width:560px;margin-top:8px}
+  .grid{display:grid;grid-template-columns:1fr 1.05fr;gap:24px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .panel{background:linear-gradient(180deg,var(--panel),var(--ink-2));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .panel .pad{padding:22px}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+  .tpls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  @media(max-width:520px){.tpls{grid-template-columns:1fr}}
+  .tpl{cursor:pointer;text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.015);border-radius:11px;padding:13px 14px;transition:.16s;color:var(--paper)}
+  .tpl:hover{border-color:var(--amber);transform:translateY(-2px)}
+  .tpl.active{border-color:var(--amber);background:rgba(224,138,60,.10);box-shadow:inset 0 0 0 1px rgba(224,138,60,.35)}
+  .tpl .t{font-family:"Fraunces",serif;font-size:16px;font-weight:600}
+  .tpl .d{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .tpl .n{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--amber);opacity:.8}
+  .field{margin-top:16px}
+  label{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em;margin-bottom:6px;color:var(--soft)}
+  label .hint{font-weight:400;color:var(--muted);font-size:11.5px}
+  input[type=text],textarea{
+    width:100%;background:#15110d;border:1px solid var(--line);color:var(--paper);
+    border-radius:9px;padding:10px 12px;font-family:"Hanken Grotesk",sans-serif;font-size:14px;resize:vertical;transition:.15s}
+  textarea{min-height:62px;line-height:1.45}
+  input:focus,textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(224,138,60,.16)}
+  .auto-flag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--teal);margin-left:6px;opacity:0;transition:.2s}
+  .auto-flag.on{opacity:1}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chip{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--soft);
+    border-radius:999px;padding:6px 12px;font-size:12px;font-weight:500;transition:.14s;user-select:none}
+  .chip:hover{border-color:var(--soft)}
+  .chip.on{background:var(--amber);border-color:var(--amber);color:#1a1209;font-weight:700}
+  .chip.auto{cursor:default;border-style:dashed}
+  .chip.auto.on{background:rgba(94,199,184,.16);border-color:var(--teal);color:var(--teal)}
+  .chip.conflict{border-color:var(--rose);color:var(--rose);background:rgba(224,122,106,.12)}
+  .radiorow{display:flex;gap:8px;margin-top:4px}
+  .seg{cursor:pointer;flex:1;text-align:center;border:1px solid var(--line);border-radius:9px;padding:9px;font-size:13px;font-weight:600;transition:.14s;color:var(--soft)}
+  .seg.on{background:rgba(224,138,60,.14);border-color:var(--amber);color:var(--amber-2)}
+  .seg.disabled{opacity:.35;cursor:not-allowed}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .warn-box{font-size:12px;color:var(--rose);background:rgba(224,122,106,.08);border:1px solid var(--rose);border-radius:8px;padding:10px 12px;margin-top:10px;display:none}
+  .warn-box.show{display:block}
+  .outhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .btns{display:flex;gap:8px}
+  button.act{cursor:pointer;border:1px solid var(--line);background:#15110d;color:var(--paper);border-radius:8px;padding:8px 14px;font-family:"Hanken Grotesk",sans-serif;font-size:13px;font-weight:600;transition:.15s;display:flex;align-items:center;gap:7px}
+  button.act:hover{border-color:var(--amber);color:var(--amber-2)}
+  button.act.primary{background:var(--amber);border-color:var(--amber);color:#1a1209}
+  button.act.primary:hover{background:var(--amber-2)}
+  pre.out{background:#100d09;border:1px solid var(--line);border-radius:11px;padding:18px;
+    font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.62;color:#e9dfca;
+    white-space:pre-wrap;word-break:break-word;max-height:560px;overflow:auto;margin:0}
+  pre.out .h{color:var(--amber-2)}
+  .stat{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+  .stat.warn{color:var(--amber-2)}
+  .stat.danger{color:var(--rose)}
+  .sticky{position:sticky;top:24px}
+  footer{margin-top:30px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:16px;line-height:1.6}
+  .checkrow{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;color:var(--soft);cursor:pointer}
+  .checkrow input{cursor:pointer}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="mark">Forge</span>
+      <div>
+        <h1>The Client Build <em>Prompt&nbsp;Forge</em></h1>
+        <p class="sub">Pick a job type, drop in the brief, and forge a sequenced Claude prompt that auto-wires ingestion, design guardrails, SEO/CRO, motion, and testing — ready to paste into Claude Code.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: builder -->
+    <div>
+      <div class="panel"><div class="pad">
+        <p class="eyebrow">01 · Job type</p>
+        <div class="tpls" id="tpls"></div>
+      </div></div>
+
+      <div class="panel" style="margin-top:20px"><div class="pad">
+        <p class="eyebrow">02 · Brief & inputs</p>
+        <div id="fields"></div>
+      </div></div>
+
+      <div class="panel" style="margin-top:20px"><div class="pad">
+        <p class="eyebrow">03 · Primary taste guardrail <span style="color:var(--muted);text-transform:none;letter-spacing:0">— pick one, never more</span></p>
+        <div class="radiorow" id="taste"></div>
+        <div class="warn-box" id="tasteWarn"></div>
+
+        <p class="eyebrow" style="margin-top:18px">04 · Skill & tool loadout</p>
+        <div class="chips" id="chips"></div>
+        <div class="warn-box" id="conflictWarn"></div>
+        <p class="note" id="autonote">Dashed teal chips switch on automatically when their input field is filled — GitHub refs pull in <b>codefetch</b> (+ <b>graphify</b> if complex repo is checked), documents pull in <b>markitdown</b>, inspiration URLs pull in <b>designlang</b>, video refs pull in <b>claude-video</b>.</p>
+      </div></div>
+    </div>
+
+    <!-- RIGHT: output -->
+    <div>
+      <div class="panel sticky"><div class="pad">
+        <div class="outhead">
+          <p class="eyebrow" style="margin:0">05 · Forged prompt</p>
+          <div class="btns">
+            <button class="act" id="copy">⧉ Copy</button>
+            <button class="act primary" id="dl">↓ .md</button>
+          </div>
+        </div>
+        <pre class="out" id="out"></pre>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px">
+          <span class="stat" id="stat"></span>
+          <span class="stat">paste → Claude Code</span>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <footer>
+    Runs fully offline · stores nothing · keep <code style="color:var(--soft)">toolchain-reference.md</code> in your repo so Claude reads tool roles before building.
+    One primary taste guardrail at a time. Verify any <code style="color:var(--soft)">[UNVERIFIED]</code> skills before automating.
+  </footer>
+</div>
+
+<script>
+/* ---------- catalog ---------- */
+const TEMPLATES = [
+  { id:"client-website-brand-seo", name:"Client Website", n:"brand + SEO", desc:"Client-ready marketing site, on-brand & optimized.",
+    fields:[
+      {k:"client_name",l:"Client / project name",t:"text",p:"Acme Coffee Roasters"},
+      {k:"brief",l:"One-line brief & goal",t:"area",p:"A premium single-origin coffee brand; goal is online subscriptions."},
+      {k:"target_audience",l:"Target audience",t:"text",p:"home espresso enthusiasts, 25–45"},
+      {k:"pages",l:"Pages",t:"text",p:"Home, Shop, Subscriptions, About, Contact"},
+      {k:"primary_cta",l:"Primary CTA",t:"text",p:"Start a subscription"},
+      {k:"industry_type",l:"Industry type",t:"text",p:"coffee / fintech / spa / SaaS"},
+      {k:"brand_assets",l:"Brand assets / notes",t:"area",p:"Logo in /assets, colors #3a2a1f & #d98c45, font 'Fraunces'. Voice: warm, expert."},
+      {k:"inspiration_urls",l:"Inspiration URLs",t:"area",p:"https://bluebottlecoffee.com
+https://trade.coffee", wire:"designlang"},
+      {k:"documents",l:"Documents to ingest",t:"area",p:"./brief.pdf  ./brand-guide.pptx", wire:"markitdown"},
+      {k:"github_refs",l:"GitHub references",t:"area",p:"github.com/acme/old-site", wire:"codefetch"},
+    ],
+    skills:["ai-seo","seo-audit","schema","brand-guidelines","founder:prd","founder:cro","superpowers","web-artifacts-builder","playwright","design-motion-principles"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"mvp-webapp-artifact", name:"MVP / Web App", n:"+ testable artifact", desc:"Scope → system design → interactive artifact for user testing.",
+    fields:[
+      {k:"product_name",l:"Product name",t:"text",p:"SplitWise-lite"},
+      {k:"problem",l:"Problem it solves",t:"area",p:"Friends can't easily track who owes whom after group trips."},
+      {k:"core_user",l:"Core user",t:"text",p:"groups of 3–8 friends sharing expenses"},
+      {k:"must_have_features",l:"Must-have features",t:"area",p:"add expense, split evenly/custom, running balances, settle-up summary"},
+      {k:"data_entities",l:"Data entities",t:"text",p:"User, Group, Expense, Split, Settlement"},
+      {k:"inspiration_urls",l:"Inspiration URLs",t:"area",p:"https://linear.app", wire:"designlang"},
+      {k:"documents",l:"Documents to ingest",t:"area",p:"./prd-notes.docx", wire:"markitdown"},
+      {k:"github_refs",l:"GitHub references",t:"area",p:"", wire:"codefetch"},
+    ],
+    skills:["founder:prd","superpowers","web-artifacts-builder","playwright","algorithmic-art"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"ingest-inputs", name:"Ingest Inputs", n:"refs → markdown", desc:"Turn repos, docs, URLs & video into one clean brief.",
+    fields:[
+      {k:"output_name",l:"Output name",t:"text",p:"acme-brief"},
+      {k:"github_refs",l:"GitHub references",t:"area",p:"github.com/acme/api", wire:"codefetch"},
+      {k:"documents",l:"Documents",t:"area",p:"./rfp.pdf  ./specs.xlsx", wire:"markitdown"},
+      {k:"inspiration_urls",l:"Inspiration URLs",t:"area",p:"https://stripe.com", wire:"designlang"},
+      {k:"video_refs",l:"Video references",t:"area",p:"./walkthrough.mp4", wire:"claude-video"},
+    ],
+    skills:["graphify"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"design-from-reference", name:"Design From Reference", n:"extract → rebuild", desc:"Lift a reference site's tokens, rebuild on the client's brand.",
+    fields:[
+      {k:"reference_url",l:"Reference URL",t:"text",p:"https://stripe.com", wire:"designlang"},
+      {k:"target",l:"What to rebuild",t:"text",p:"the pricing section, as a reusable component"},
+      {k:"brand_assets",l:"Client brand to apply",t:"area",p:"colors #14233b & #ffb703, font 'Hanken Grotesk', rounded, friendly."},
+    ],
+    skills:["web-artifacts-builder","design-motion-principles"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"seo-cro-pass", name:"SEO + CRO Pass", n:"optimize existing", desc:"AEO/GEO + conversion audit and prioritized fixes.",
+    fields:[
+      {k:"site_target",l:"Site URL or path",t:"text",p:"https://acme.com  (or ./dist)"},
+      {k:"top_queries",l:"Top queries to win",t:"area",p:"best single-origin coffee subscription
+coffee subscription vs grocery"},
+      {k:"competitors",l:"Competitors being cited",t:"text",p:"Trade Coffee, Blue Bottle"},
+    ],
+    skills:["ai-seo","seo-audit","schema","founder:cro"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"project-face-off", name:"Project Face-Off", n:"A vs B", desc:"Build two variants, screenshot both, present side-by-side.",
+    fields:[
+      {k:"brief",l:"What to design",t:"area",p:"landing hero + features for a B2B analytics tool"},
+      {k:"variant_a_style",l:"Variant A style",t:"text",p:"refined minimalist (impeccable)"},
+      {k:"variant_b_style",l:"Variant B style",t:"text",p:"bold Awwwards motion (taste-skill gpt-taste)"},
+      {k:"inspiration_urls",l:"Inspiration URLs",t:"area",p:"", wire:"designlang"},
+    ],
+    skills:["web-artifacts-builder","playwright","design-motion-principles"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"redesign-audit", name:"Redesign Audit", n:"audit & improve", desc:"Systematic audit and redesign of an existing site or codebase.",
+    fields:[
+      {k:"existing_site_url_or_path",l:"Existing site URL or path",t:"text",p:"https://acme.com  (or ./src)"},
+      {k:"pain_points",l:"Pain points",t:"area",p:"slow load times, outdated hero, poor mobile experience, low conversion"},
+      {k:"goals",l:"Redesign goals",t:"area",p:"modern look, better CTA flow, improved accessibility, higher conversion"},
+      {k:"industry_type",l:"Industry type",t:"text",p:"e-commerce / SaaS / healthcare"},
+      {k:"inspiration_urls",l:"Inspiration URLs",t:"area",p:"", wire:"designlang"},
+      {k:"documents",l:"Documents to ingest",t:"area",p:"", wire:"markitdown"},
+    ],
+    skills:["founder:cro","superpowers","web-artifacts-builder","playwright","design-motion-principles"],
+    defaults:{taste:"impeccable"} },
+
+  { id:"knowledge-graph-system", name:"Knowledge-Graph System", n:"complex codebase", desc:"Ingest a complex repo, build a knowledge graph, then design a new feature.",
+    fields:[
+      {k:"target_feature",l:"Feature to build",t:"text",p:"real-time notification center"},
+      {k:"brief",l:"Brief",t:"area",p:"Add a real-time notification center to the existing dashboard app."},
+      {k:"github_refs",l:"GitHub references",t:"area",p:"github.com/acme/dashboard", wire:"codefetch"},
+      {k:"documents",l:"Documents to ingest",t:"area",p:"./architecture.md", wire:"markitdown"},
+    ],
+    skills:["founder:prd","superpowers","web-artifacts-builder","playwright","graphify"],
+    defaults:{taste:"impeccable"} },
+];
+
+const SKILLS = [
+  {id:"ai-seo", label:"ai-seo (AEO/GEO)", cat:"seo"},
+  {id:"seo-audit", label:"seo-audit (technical)", cat:"seo"},
+  {id:"schema", label:"schema (structured data)", cat:"seo"},
+  {id:"brand-guidelines", label:"brand-guidelines", cat:"brand"},
+  {id:"founder:prd", label:"founder · prd-generator", cat:"founder"},
+  {id:"founder:cro", label:"founder · cro-optimization", cat:"founder"},
+  {id:"founder:competitor-intel", label:"founder · competitor-intel", cat:"founder"},
+  {id:"founder:pricing-strategist", label:"founder · pricing-strategist", cat:"founder"},
+  {id:"founder:brand-copywriter", label:"founder · brand-copywriter", cat:"founder"},
+  {id:"superpowers", label:"superpowers (orchestrator)", cat:"meta"},
+  {id:"web-artifacts-builder", label:"web-artifacts-builder", cat:"package"},
+  {id:"playwright", label:"playwright (tests)", cat:"test"},
+  {id:"algorithmic-art", label:"algorithmic-art", cat:"visual"},
+  {id:"remotion", label:"remotion (demo video)", cat:"visual"},
+  {id:"output-skill", label:"output-skill (no placeholders)", cat:"quality"},
+  {id:"design-motion-principles", label:"design-motion-principles", cat:"design"},
+];
+
+const AUTO_TOOLS = {
+  designlang:"designlang",
+  codefetch:"codefetch",
+  markitdown:"markitdown",
+  "claude-video":"claude-video",
+  graphify:"graphify"
+};
+
+const TASTE_PRIMARY = ["impeccable","taste-skill","ui-ux-pro-max-skill"];
+const CONFLICT_PAIRS = [
+  ["impeccable","taste-skill"],
+  ["impeccable","ui-ux-pro-max-skill"],
+  ["taste-skill","ui-ux-pro-max-skill"],
+];
+
+/* ---------- state (in memory only) ---------- */
+let state = {
+  tpl: TEMPLATES[0].id,
+  values: {},
+  skills: new Set(),
+  taste: "impeccable",
+  complexRepo: false
+};
+
+function currentTpl(){ return TEMPLATES.find(t=>t.id===state.tpl); }
+
+function loadTemplate(id){
+  const t = TEMPLATES.find(x=>x.id===id);
+  state.tpl = id;
+  state.values = {};
+  state.skills = new Set(t.skills);
+  state.taste = t.defaults.taste || "impeccable";
+  state.complexRepo = false;
+  renderTemplates(); renderFields(); renderTaste(); renderChips(); compose();
+}
+
+/* ---------- render ---------- */
+function renderTemplates(){
+  document.getElementById("tpls").innerHTML = TEMPLATES.map(t=>`
+    <button class="tpl ${t.id===state.tpl?'active':''}" data-id="${t.id}">
+      <div class="t">${t.name}</div><div class="n">${t.n}</div>
+      <div class="d">${t.desc}</div>
+    </button>`).join("");
+  document.querySelectorAll(".tpl").forEach(b=>b.onclick=()=>loadTemplate(b.dataset.id));
+}
+
+function renderFields(){
+  const t = currentTpl();
+  let html = t.fields.map(f=>{
+    const flag = f.wire?`<span class="auto-flag" id="flag-${f.k}">→ ${AUTO_TOOLS[f.wire]} on</span>`:"";
+    const ctl = f.t==="area"
+      ? `<textarea data-k="${f.k}" placeholder="${f.p||''}"></textarea>`
+      : `<input type="text" data-k="${f.k}" placeholder="${f.p||''}">`;
+    return `<div class="field"><label>${f.l}${flag}</label>${ctl}</div>`;
+  }).join("");
+
+  // Complex repo checkbox for graphify
+  const hasGithub = t.fields.some(f=>f.wire==="codefetch");
+  if(hasGithub){
+    html += `<div class="checkrow">
+      <input type="checkbox" id="complexRepo" ${state.complexRepo?'checked':''}>
+      <label for="complexRepo" style="margin:0;font-weight:400;color:var(--soft);cursor:pointer">This is a large/complex repo → auto-enable <b>graphify</b></label>
+    </div>`;
+  }
+
+  document.getElementById("fields").innerHTML = html;
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    el.addEventListener("input",e=>{
+      state.values[e.target.dataset.k] = e.target.value;
+      updateAutoFlags(); compose();
+    });
+  });
+  const cb = document.getElementById("complexRepo");
+  if(cb) cb.addEventListener("change",e=>{state.complexRepo=e.target.checked;renderChips();compose();});
+}
+
+function renderTaste(){
+  const opts = [
+    ["impeccable","impeccable"],
+    ["taste-skill","taste-skill"],
+    ["ui-ux-pro-max-skill","ui-ux-pro-max"]
+  ];
+  document.getElementById("taste").innerHTML = opts.map(([id,l])=>{
+    const disabled = (state.skills.has("taste-skill") && id!=="taste-skill") ||
+                     (state.skills.has("ui-ux-pro-max-skill") && id!=="ui-ux-pro-max-skill") ||
+                     (state.skills.has("impeccable") && id!=="impeccable");
+    return `<div class="seg ${state.taste===id?'on':''} ${disabled?'disabled':''}" data-t="${id}">${l}</div>`;
+  }).join("");
+  document.querySelectorAll("[data-t]").forEach(s=>{
+    if(!s.classList.contains("disabled")){
+      s.onclick=()=>{state.taste=s.dataset.t;renderTaste();renderChips();compose();};
+    }
+  });
+}
+
+function renderChips(){
+  const t = currentTpl();
+  const autoEntries = Object.entries(AUTO_TOOLS).map(([wire,name])=>{
+    let on = false;
+    if(wire==="graphify"){
+      on = state.complexRepo && t.fields.some(f=>f.wire==="codefetch" && (state.values[f.k]||"").trim());
+    } else {
+      on = t.fields.some(f=>f.wire===wire && (state.values[f.k]||"").trim());
+    }
+    return `<span class="chip auto ${on?'on':''}" title="auto from inputs">⚙ ${name}${on?' ✓':''}</span>`;
+  }).join("");
+
+  const manual = SKILLS.map(s=>{
+    const isOn = state.skills.has(s.id);
+    const isConflict = isConflictSkill(s.id);
+    return `<span class="chip ${isOn?'on':''} ${isConflict?'conflict':''}" data-s="${s.id}">${s.label}</span>`;
+  }).join("");
+
+  document.getElementById("chips").innerHTML = manual + autoEntries;
+  document.querySelectorAll("[data-s]").forEach(c=>c.onclick=()=>{
+    if(state.skills.has(c.dataset.s)){
+      state.skills.delete(c.dataset.s);
+    } else {
+      state.skills.add(c.dataset.s);
+    }
+    // enforce primary taste exclusion via skills set too
+    if(TASTE_PRIMARY.includes(c.dataset.s)){
+      TASTE_PRIMARY.forEach(tp=>{ if(tp!==c.dataset.s) state.skills.delete(tp); });
+      state.taste = c.dataset.s;
+    }
+    renderTaste(); renderChips(); compose();
+  });
+
+  // conflict warnings
+  const activeConflicts = [];
+  CONFLICT_PAIRS.forEach(([a,b])=>{
+    const aOn = state.skills.has(a) || state.taste===a;
+    const bOn = state.skills.has(b) || state.taste===b;
+    if(aOn && bOn) activeConflicts.push(`${a} + ${b}`);
+  });
+  const warnBox = document.getElementById("conflictWarn");
+  if(activeConflicts.length){
+    warnBox.textContent = "Conflict: " + activeConflicts.join("; ") + " — choose only one primary taste guardrail.";
+    warnBox.classList.add("show");
+  } else {
+    warnBox.classList.remove("show");
+  }
+}
+
+function isConflictSkill(id){
+  if(!TASTE_PRIMARY.includes(id)) return false;
+  const others = TASTE_PRIMARY.filter(x=>x!==id);
+  return others.some(o=>state.skills.has(o) || state.taste===o);
+}
+
+function updateAutoFlags(){
+  currentTpl().fields.forEach(f=>{
+    if(!f.wire) return;
+    const el=document.getElementById("flag-"+f.k);
+    if(el) el.classList.toggle("on",(state.values[f.k]||"").trim().length>0);
+  });
+  renderChips();
+}
+
+/* ---------- ingestion block ---------- */
+function lines(v){ return (v||"").split(/[\n,]+/).map(s=>s.trim()).filter(Boolean); }
+function slug(s){ return s.replace(/^https?:\/\//,'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').slice(0,40)||'input'; }
+
+function ingestBlock(){
+  const v=state.values, out=[];
+  const t=currentTpl();
+
+  lines(v.github_refs).forEach(r=>{
+    out.push(`- \`codefetch --url ${r} -o codefetch/${slug(r)}.md\`  → read before designing`);
+    if(state.complexRepo){
+      out.push(`  → ALSO run \`graphify ./codefetch/${slug(r)}.md -o graphify/GRAPH_REPORT.md\` → read the knowledge graph`);
+    }
+  });
+  lines(v.documents).forEach(d=>{
+    out.push(`- \`markitdown ${d} > ingest/${slug(d)}.md\`  → read for requirements`);
+    if(d.toLowerCase().includes("brand")){
+      out.push(`  → If this is a brand guide, synthesize a \`brand-guidelines\` skill file from it`);
+    }
+  });
+  const insp = lines(v.inspiration_urls).concat(v.reference_url?[v.reference_url]:[]);
+  insp.forEach(u=>out.push(`- \`designlang ${u} --screenshots --full\`  → DESIGN FROM the emitted design-tokens.json / shadcn theme, not from imagination`));
+  lines(v.video_refs).forEach(vid=>out.push(`- ingest \`${vid}\` via claude-video /watch (transcribe + summarize; skip gracefully if unavailable)`));
+
+  return out;
+}
+
+/* ---------- skill loadout text ---------- */
+function loadout(){
+  const map={
+    "ai-seo":"ai-seo — apply the 3 pillars (structure / authority / presence)",
+    "seo-audit":"seo-audit — traditional technical + on-page SEO checks",
+    "schema":"schema — structured data markup (FAQ, HowTo, Product, Article, Organization)",
+    "brand-guidelines":"brand-guidelines — load the client's brand file; keep every component on-brand",
+    "founder:prd":"founder-skills · prd-generator — produce the PRD before building",
+    "founder:cro":"founder-skills · cro-optimization — audit against the 13 CRO principles with before/after",
+    "founder:competitor-intel":"founder-skills · competitor-intel — research competitive positioning",
+    "founder:pricing-strategist":"founder-skills · pricing-strategist — optimize pricing page strategy",
+    "founder:brand-copywriter":"founder-skills · brand-copywriter — on-brand marketing copy",
+    "superpowers":"superpowers — orchestrate brainstorm → plan → build → review → finish (TDD)",
+    "web-artifacts-builder":"web-artifacts-builder — bundle the result into ONE self-contained HTML artifact",
+    "playwright":"playwright — smoke-test flows, capture screenshots for the client",
+    "algorithmic-art":"algorithmic-art — generative hero background / brand texture",
+    "remotion":"remotion — render a short MP4 demo of the finished build (check company-license terms)",
+    "output-skill":"output-skill — enforce full output, no placeholder comments or half-finished work",
+    "design-motion-principles":"design-motion-principles — purposeful motion (Create or Audit mode)",
+  };
+  const arr=[`${state.taste} — the ONLY primary taste guardrail; run its anti-pattern check before delivery`];
+  SKILLS.forEach(s=>{ if(state.skills.has(s.id)) arr.push(map[s.id]); });
+  return arr;
+}
+
+function hasConflicts(){
+  return CONFLICT_PAIRS.some(([a,b])=>{
+    const aOn = state.skills.has(a) || state.taste===a;
+    const bOn = state.skills.has(b) || state.taste===b;
+    return aOn && bOn;
+  });
+}
+
+/* ---------- compose per template ---------- */
+function compose(){
+  const v=state.values, t=currentTpl(), ing=ingestBlock();
+  let s = `# ${t.name} — ${v.client_name||v.product_name||v.output_name||v.target_feature||v.existing_site_url_or_path||"untitled"}\n\n`;
+  s += `Use the **superpowers** workflow (brief brainstorm → plan → build → review). Read \`./toolchain-reference.md\` for each tool's role before starting.\n`;
+
+  // brief section per template
+  if(t.id==="client-website-brand-seo"){
+    s += `\n## Brief\n${v.brief||"(brief)"}\n- Audience: ${v.target_audience||"—"}\n- Pages: ${v.pages||"—"}\n- Primary CTA: ${v.primary_cta||"—"}\n- Industry: ${v.industry_type||"—"}\n- Brand: ${oneline(v.brand_assets)}\n`;
+  } else if(t.id==="mvp-webapp-artifact"){
+    s += `\n## Brief\nProduct: ${v.product_name||"—"}\nProblem: ${v.problem||"—"}\nCore user: ${v.core_user||"—"}\nMust-have features: ${oneline(v.must_have_features)}\nData entities: ${v.data_entities||"—"}\n`;
+  } else if(t.id==="ingest-inputs"){
+    s += `\n## Goal\nConsolidate every input below into a single \`${v.output_name||"brief"}.md\` plus a \`design-tokens.json\`${state.complexRepo?' and a knowledge graph report':''}.\n`;
+  } else if(t.id==="design-from-reference"){
+    s += `\n## Goal\nExtract the design language of **${v.reference_url||"the reference"}**, then rebuild **${v.target||"the target"}** on the client's brand:\n${oneline(v.brand_assets)}\n`;
+  } else if(t.id==="seo-cro-pass"){
+    s += `\n## Goal\nOptimize **${v.site_target||"the site"}** for AI search + conversion.\nTarget queries:\n${(lines(v.top_queries).map(q=>'- '+q).join("\n"))||"- (queries)"}\nCompetitors cited: ${v.competitors||"—"}\n`;
+  } else if(t.id==="project-face-off"){
+    s += `\n## Goal\nDesign **${oneline(v.brief)}** as TWO competing variants for the client to choose.\n`;
+  } else if(t.id==="redesign-audit"){
+    s += `\n## Goal\nAudit and redesign **${v.existing_site_url_or_path||"the existing site"}**.\n- Pain points: ${oneline(v.pain_points)}\n- Goals: ${oneline(v.goals)}\n- Industry: ${v.industry_type||"—"}\n`;
+  } else if(t.id==="knowledge-graph-system"){
+    s += `\n## Goal\nUnderstand the existing system, then design and build **${v.target_feature||"the new feature"}** on top of it.\nBrief: ${oneline(v.brief)}\n`;
+  }
+
+  // ingest
+  if(ing.length){ s += `\n## Phase 1 — Ingest (run FIRST)\n\nSTOP. Do not proceed to Phase 2 until you have read and summarized every ingestion output below.\n\n${ing.join("\n")}\n`; }
+
+  // template-specific phases
+  if(t.id==="client-website-brand-seo"){
+    s += `\n## Phase 2 — Shape\n- Generate a PRD/spec via founder-skills:prd-generator; confirm sitemap, content blocks, and CTA flow.\n`;
+    if(v.industry_type) s += `- Run ui-ux-pro-max-skill design-system generator for industry-specific rules ("${v.industry_type}").\n`;
+    s += `\n## Phase 3 — Build\n- Build the pages with **${state.taste}** as the primary taste guardrail; honor the brand tokens above.\n`;
+    if(state.skills.has("design-motion-principles")) s += `- Load design-motion-principles (Create mode) for purposeful motion.\n`;
+    s += `\n## Phase 4 — Optimize\n- SEO + CRO pass (see loadout).\n`;
+    s += `\n## Phase 5 — Package\n- One self-contained artifact for client review.\n`;
+    s += `\n## Phase 6 — Test\n- Playwright: links, forms, responsive, Lighthouse-ish checks; screenshot each page.\n`;
+    s += `\n## Phase 7 — Deliver\n- Optional Remotion demo clip (check license). Present artifact + test report + screenshots.\n`;
+  } else if(t.id==="mvp-webapp-artifact"){
+    s += `\n## Phase 2 — Spec & system design\n- PRD via prd-generator; define routes, state, and the entities above. Keep scope to must-haves only (YAGNI).\n`;
+    s += `\n## Phase 3 — Build\n- Interactive artifact with **${state.taste}**; mock/seed data in-memory.\n`;
+    if(state.skills.has("algorithmic-art")) s += `- Use algorithmic-art for a generative hero background or brand texture.\n`;
+    s += `\n## Phase 4 — Test\n- Playwright happy-path tests for each must-have feature.\n`;
+    s += `\n## Phase 5 — Ship\n- Deliver as ONE testable HTML artifact for user testing; include a 30-sec "how to try it" note.\n`;
+  } else if(t.id==="ingest-inputs"){
+    s += `\n## Phase 2 — Synthesize\n- Merge all ingested Markdown into \`${v.output_name||"brief"}.md\` with a short executive summary on top.\n- Emit \`design-tokens.json\` from any inspiration URLs.\n`;
+    if(state.complexRepo) s += `- Include a "System Architecture" section from the knowledge graph reports.\n`;
+  } else if(t.id==="design-from-reference"){
+    s += `\n## Phase 2 — Map\n1. Summarize the reference's type scale, palette, spacing, motion.\n2. Map those patterns onto the client's brand tokens.\n3. Write DESIGN_DECISIONS.md explaining every choice.\n`;
+    s += `\n## Phase 3 — Rebuild\n- Rebuild **${v.target||"the target"}** with **${state.taste}** as the primary guardrail.\n`;
+    s += `\n## Phase 4 — Audit\n- Run the ${state.taste} anti-pattern check.\n`;
+    if(state.skills.has("design-motion-principles")) s += `- Run design-motion-principles (Audit mode) if motion was used.\n`;
+  } else if(t.id==="seo-cro-pass"){
+    s += `\n## Phase 2 — Audit\n1. ai-seo audit (structure/authority/presence) + extractability check + robots/llms.txt.\n2. seo-audit + schema recommendations.\n3. cro-optimization against the 13 principles.\n`;
+    s += `\n## Phase 3 — Prioritized Diff\n- Output a single table (impact × effort), highest-leverage first.\n- Include before/after snippets, llms.txt draft, and schema markup ready to paste.\n`;
+  } else if(t.id==="project-face-off"){
+    s += `\n## Phase 2 — Build Variants\n1. Variant A — ${v.variant_a_style||"minimalist (impeccable)"} with impeccable as guardrail.\n2. Variant B — ${v.variant_b_style||"bold motion (taste-skill gpt-taste)"} with taste-skill + design-motion-principles.\n`;
+    s += `\n## Phase 3 — Capture\n- Screenshot both with Playwright at desktop + tablet + mobile.\n`;
+    s += `\n## Phase 4 — Present\n- Side-by-side comparison with 1-line rationale each; recommend one.\n`;
+  } else if(t.id==="redesign-audit"){
+    s += `\n## Phase 2 — Multi-Layer Audit\n1. redesign-skill — audit UI, fix layout/spacing/hierarchy.\n`;
+    if(v.industry_type) s += `2. ui-ux-pro-max-skill — compare against industry best practices ("${v.industry_type}").\n`;
+    s += `3. design-motion-principles (Audit mode) — motion-gap + anti-slop checklist.\n`;
+    s += `4. impeccable audit — a11y, performance, responsive, UX writing.\n`;
+    s += `5. founder-skills:cro-optimization — 13 principles, before/after.\n`;
+    s += `\n## Phase 3 — Prioritized Fix List\n- Impact × Effort table. Apply top P0–P2 fixes.\n`;
+    s += `\n## Phase 4 — Rebuild & Test\n- Rebuild affected components with **${state.taste}** as guardrail.\n- Playwright regression tests + before/after screenshots.\n`;
+  } else if(t.id==="knowledge-graph-system"){
+    s += `\n## Phase 2 — System Design\n1. From the knowledge graph, identify entry points, APIs, data models, and plug-in points.\n2. Write a lightweight system design doc (scope IN/OUT, entities, API changes, UI changes).\n3. PRD via founder-skills:prd-generator if user-facing.\n`;
+    s += `\n## Phase 3 — Build\n- Build the feature with **${state.taste}** as guardrail, matching existing codebase patterns.\n`;
+    s += `\n## Phase 4 — Test\n- Playwright happy-path tests. Re-run graphify to verify updated architecture.\n`;
+    s += `\n## Phase 5 — Ship\n- Bundle into a single HTML artifact. Deliver with updated knowledge graph + test results.\n`;
+  }
+
+  // loadout + constraints
+  s += `\n## Skill & tool loadout\n${loadout().map(x=>'- '+x).join("\n")}\n`;
+  s += `\n## Constraints\n- One primary taste guardrail only (loaded: ${state.taste}).\n`;
+  if(hasConflicts()) s += `- ⚠️ CONFLICT DETECTED: multiple primary taste guardrails selected. Fix before running.\n`;
+  s += `- Design from extracted tokens, never invented palettes.\n`;
+  s += `- If a skill/CLI is missing, log it and continue — never fail the whole run.\n`;
+  s += `- Final deliverable is a single self-contained artifact + passing tests.\n`;
+
+  render(s);
+}
+
+function oneline(x){ return (x||"").replace(/\s*\n\s*/g," · ").trim()||"—"; }
+
+let lastPrompt="";
+function render(s){
+  lastPrompt=s;
+  const html = s.replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/^(#.*|##.*)$/gm,'<span class="h">$1</span>');
+  document.getElementById("out").innerHTML = html;
+
+  const chars = s.length;
+  const tokens = Math.round(s.split(/\s+/).length*1.3);
+  const statEl = document.getElementById("stat");
+  statEl.textContent = `${chars.toLocaleString()} chars · ~${tokens} tokens`;
+  statEl.className = "stat" + (chars>12000?" danger":chars>8000?" warn":"");
+}
+
+/* ---------- actions ---------- */
+document.getElementById("copy").onclick=async()=>{
+  try{ await navigator.clipboard.writeText(lastPrompt); flash("copy","✓ Copied"); }
+  catch{ const ta=document.createElement("textarea");ta.value=lastPrompt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();flash("copy","✓ Copied"); }
+};
+document.getElementById("dl").onclick=()=>{
+  const blob=new Blob([lastPrompt],{type:"text/markdown"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=(state.tpl)+".md";a.click();URL.revokeObjectURL(a.href);flash("dl","✓ Saved");
+};
+function flash(id,txt){ const b=document.getElementById(id);const o=b.textContent;b.textContent=txt;setTimeout(()=>b.textContent=o,1300); }
+
+/* init */
+loadTemplate(TEMPLATES[0].id);
+</script>
+</body>
+</html>
