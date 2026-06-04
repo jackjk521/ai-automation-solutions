@@ -5,378 +5,704 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Design Prompts Library</title>
 <style>
-  :root {
-    --bg: #111317;
-    --surface: #1a1d23;
-    --surface2: #22262e;
-    --border: #2e333d;
-    --text: #e8eaf0;
-    --text-muted: #7a8099;
-    --amber: #f5a623;
-    --amber-dim: #c47d0e;
-    --teal: #2dd4bf;
-    --teal-dim: #14b8a6;
-    --green: #4ade80;
-    --blue: #60a5fa;
-    --purple: #c084fc;
-    --red: #f87171;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-  }
-  /* Header */
-  header {
-    background: linear-gradient(135deg, #1a1d23 0%, #111317 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 24px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(8px);
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--amber), var(--teal));
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-  }
-  .logo h1 {
-    font-size: 18px;
-    font-weight: 700;
-    background: linear-gradient(90deg, var(--amber), var(--teal));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .logo p {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 1px;
-  }
-  .header-stats {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-  }
-  .stat-item {
-    text-align: center;
-  }
-  .stat-item .num {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--amber);
-    line-height: 1;
-  }
-  .stat-item .label {
-    font-size: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  /* Search bar */
-  .search-wrap {
-    padding: 20px 32px 0;
-    max-width: 900px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  .search-box {
-    position: relative;
-    width: 100%;
-  }
-  .search-box input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-size: 15px;
-    padding: 12px 44px 12px 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-box input::placeholder { color: var(--text-muted); }
-  .search-box input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,212,191,.12); }
-  .search-icon {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
-    font-size: 16px;
-  }
-  /* Filters */
-  .filters {
-    padding: 16px 32px;
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .filter-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .filter-label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    min-width: 60px;
-    flex-shrink: 0;
-  }
-  .chip {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .chip:hover { border-color: var(--teal); color: var(--teal); }
-  .chip.active { background: var(--teal); border-color: var(--teal); color: #111; font-weight: 600; }
-  .chip.source-dp.active { background: var(--amber); border-color: var(--amber); color: #111; }
-  .chip.source-tt.active { background: var(--purple); border-color: var(--purple); color: #111; }
-  .chip.diff-beginner.active { background: var(--green); border-color: var(--green); color: #111; }
-  .chip.diff-intermediate.active { background: var(--amber); border-color: var(--amber); color: #111; }
-  .chip.diff-advanced.active { background: var(--red); border-color: var(--red); color: #fff; }
-  /* Tag cloud */
-  .tag-section {
-    padding: 0 32px 12px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  .tag-section-label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-  .tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .tag-pill {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px dashed var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    transition: all 0.15s;
-  }
-  .tag-pill:hover { border-color: var(--teal); color: var(--teal); border-style: solid; }
-  .tag-pill.active { border-color: var(--teal); color: var(--teal); border-style: solid; background: rgba(45,212,191,0.08); }
-  /* Results bar */
-  .results-bar {
-    padding: 0 32px 12px;
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .result-count {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  .result-count span { color: var(--teal); font-weight: 600; }
-  .clear-btn {
-    background: none;
-    border: none;
-    color: var(--amber);
-    font-size: 12px;
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 0;
-  }
-  .clear-btn:hover { color: var(--amber-dim); }
-  /* Grid */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 16px;
-    padding: 0 32px 32px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.2s, transform 0.15s;
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--amber), var(--teal));
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .card:hover { border-color: var(--teal-dim); transform: translateY(-2px); }
-  .card:hover::before { opacity: 1; }
-  .card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .card-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.3;
-  }
-  .badges {
-    display: flex;
-    gap: 5px;
-    flex-shrink: 0;
-    align-items: center;
-  }
-  .badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .badge-source-dp { background: rgba(245,166,35,0.15); color: var(--amber); }
-  .badge-source-tt { background: rgba(192,132,252,0.15); color: var(--purple); }
-  .badge-beginner { background: rgba(74,222,128,0.15); color: var(--green); }
-  .badge-intermediate { background: rgba(245,166,35,0.15); color: var(--amber); }
-  .badge-advanced { background: rgba(248,113,113,0.15); color: var(--red); }
-  .card-body {
-    font-size: 13px;
-    color: #b0b8cc;
-    line-height: 1.6;
-    flex: 1;
-  }
-  .card-body.collapsed {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .expand-btn {
-    background: none;
-    border: none;
-    color: var(--teal);
-    font-size: 11px;
-    cursor: pointer;
-    padding: 0;
-    margin-top: -4px;
-    align-self: flex-start;
-  }
-  .expand-btn:hover { text-decoration: underline; }
-  .card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-  .tag {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    background: var(--surface2);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tag:hover { border-color: var(--teal); color: var(--teal); }
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 4px;
-    border-top: 1px solid var(--border);
-  }
-  .card-id {
-    font-size: 10px;
-    color: var(--text-muted);
-    font-family: monospace;
-  }
-  .copy-btn {
-    padding: 5px 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .copy-btn:hover { border-color: var(--teal); color: var(--teal); background: rgba(45,212,191,0.07); }
-  .copy-btn.copied { border-color: var(--green); color: var(--green); }
-  /* Empty state */
-  .empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
-  .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
-  /* Responsive */
-  @media (max-width: 600px) {
-    header { padding: 16px; }
-    .search-wrap, .filters, .tag-section, .results-bar, .grid { padding-left: 16px; padding-right: 16px; }
-    .grid { grid-template-columns: 1fr; }
-    .header-stats { display: none; }
-  }
+/* ── Global ─────────────────────────────────────────────────────────── */
+:root {
+  --bg: #111317; --surface: #1a1d23; --surface2: #22262e;
+  --border: #2e333d; --text: #e8eaf0; --text-muted: #7a8099;
+  --amber: #f5a623; --amber-dim: #c47d0e;
+  --teal: #2dd4bf;  --teal-dim: #14b8a6;
+  --green: #4ade80; --blue: #60a5fa;
+  --purple: #c084fc; --red: #f87171;
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter','Segoe UI',system-ui,sans-serif; font-size: 14px; min-height: 100vh; }
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+header {
+  background: linear-gradient(135deg,#1a1d23 0%,#111317 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  position: sticky; top: 0; z-index: 200; backdrop-filter: blur(8px);
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg,var(--amber),var(--teal)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.logo h1 { font-size: 18px; font-weight: 700; background: linear-gradient(90deg,var(--amber),var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.logo p  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.header-stats { display: flex; gap: 20px; align-items: center; }
+.stat-item { text-align: center; }
+.stat-item .num   { font-size: 20px; font-weight: 700; color: var(--amber); line-height: 1; }
+.stat-item .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+/* ── Tabs ────────────────────────────────────────────────────────────── */
+.tab-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 32px; background: var(--surface); }
+.tab-btn {
+  padding: 13px 22px; font-size: 13px; font-weight: 500;
+  border: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  background: none; color: var(--text-muted); cursor: pointer; transition: all .18s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); font-weight: 600; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Prompts Library tab ────────────────────────────────────────────── */
+.search-wrap { padding: 20px 32px 0; max-width: 900px; margin: 0 auto; width: 100%; }
+.search-box { position: relative; }
+.search-box input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-size: 15px; padding: 12px 44px 12px 16px; outline: none; transition: border-color .2s; }
+.search-box input::placeholder { color: var(--text-muted); }
+.search-box input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,212,191,.12); }
+.search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 16px; }
+.filters { padding: 16px 32px; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); min-width: 60px; flex-shrink: 0; }
+.chip { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); transition: all .15s; white-space: nowrap; }
+.chip:hover { border-color: var(--teal); color: var(--teal); }
+.chip.active { background: var(--teal); border-color: var(--teal); color: #111; font-weight: 600; }
+.chip.source-dp.active { background: var(--amber); border-color: var(--amber); color: #111; }
+.chip.source-tt.active { background: var(--purple); border-color: var(--purple); color: #111; }
+.chip.diff-beginner.active    { background: var(--green);  border-color: var(--green);  color: #111; }
+.chip.diff-intermediate.active{ background: var(--amber);  border-color: var(--amber);  color: #111; }
+.chip.diff-advanced.active    { background: var(--red);    border-color: var(--red);    color: #fff; }
+.tag-section { padding: 0 32px 12px; max-width: 900px; margin: 0 auto; }
+.tag-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 8px; }
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-pill { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); transition: all .15s; }
+.tag-pill:hover  { border-color: var(--teal); color: var(--teal); border-style: solid; }
+.tag-pill.active { border-color: var(--teal); color: var(--teal); border-style: solid; background: rgba(45,212,191,.08); }
+.results-bar { padding: 0 32px 12px; max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.result-count { font-size: 12px; color: var(--text-muted); }
+.result-count span { color: var(--teal); font-weight: 600; }
+.clear-btn { background: none; border: none; color: var(--amber); font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; }
+.clear-btn:hover { color: var(--amber-dim); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(380px,1fr)); gap: 16px; padding: 0 32px 32px; max-width: 900px; margin: 0 auto; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 12px; transition: border-color .2s,transform .15s; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--amber),var(--teal)); opacity: 0; transition: opacity .2s; }
+.card:hover { border-color: var(--teal-dim); transform: translateY(-2px); }
+.card:hover::before { opacity: 1; }
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.badges { display: flex; gap: 5px; flex-shrink: 0; align-items: center; }
+.badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.badge-source-dp    { background: rgba(245,166,35,.15); color: var(--amber); }
+.badge-source-tt    { background: rgba(192,132,252,.15); color: var(--purple); }
+.badge-beginner     { background: rgba(74,222,128,.15);  color: var(--green); }
+.badge-intermediate { background: rgba(245,166,35,.15);  color: var(--amber); }
+.badge-advanced     { background: rgba(248,113,113,.15); color: var(--red); }
+.card-body { font-size: 13px; color: #b0b8cc; line-height: 1.6; flex: 1; }
+.card-body.collapsed { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.expand-btn { background: none; border: none; color: var(--teal); font-size: 11px; cursor: pointer; padding: 0; margin-top: -4px; align-self: flex-start; }
+.expand-btn:hover { text-decoration: underline; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { padding: 2px 8px; border-radius: 4px; font-size: 10px; background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); cursor: pointer; transition: all .15s; }
+.tag:hover { border-color: var(--teal); color: var(--teal); }
+.card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid var(--border); }
+.card-id { font-size: 10px; color: var(--text-muted); font-family: monospace; }
+.copy-btn { padding: 5px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); font-size: 11px; font-weight: 500; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 5px; }
+.copy-btn:hover  { border-color: var(--teal); color: var(--teal); background: rgba(45,212,191,.07); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+.empty { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   DESIGN STYLES TAB  —  designprompts.dev replica (light theme)
+   ══════════════════════════════════════════════════════════════════════ */
+#panel-styles {
+  background: #f9fafb;
+  color: #111827;
+  min-height: calc(100vh - 110px);
+}
+
+/* Hero */
+.ds-hero {
+  text-align: center;
+  padding: 52px 24px 36px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+.ds-hero-badge {
+  display: inline-block;
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  margin-bottom: 16px;
+}
+.ds-hero h2 {
+  font-size: 36px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+.ds-hero h2 span {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ds-hero p {
+  font-size: 16px;
+  color: #6b7280;
+  max-width: 560px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
+}
+.ds-hero-meta { display: flex; gap: 24px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.ds-hero-stat { font-size: 13px; color: #9ca3af; }
+.ds-hero-stat strong { color: #374151; font-weight: 700; }
+
+/* Search + filters */
+.ds-controls {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 32px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 57px;
+  z-index: 100;
+}
+.ds-search {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.ds-search input {
+  width: 100%;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #111827;
+  font-size: 13px;
+  padding: 8px 36px 8px 12px;
+  outline: none;
+  transition: border-color .2s;
+  font-family: inherit;
+}
+.ds-search input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+.ds-search input::placeholder { color: #9ca3af; }
+.ds-search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; pointer-events: none; }
+.ds-filter-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.ds-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  transition: all .15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.ds-chip:hover  { border-color: #6366f1; color: #6366f1; }
+.ds-chip.active { background: #6366f1; border-color: #6366f1; color: #fff; font-weight: 600; }
+
+/* Style cards grid */
+.ds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 28px 32px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.ds-count { padding: 20px 32px 0; max-width: 1200px; margin: 0 auto; font-size: 12px; color: #9ca3af; }
+.ds-count span { color: #6366f1; font-weight: 600; }
+
+/* Style card */
+.ds-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  position: relative;
+}
+.ds-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.1);
+  border-color: #d1d5db;
+}
+
+/* Preview box */
+.ds-preview {
+  height: 155px;
+  position: relative;
+  overflow: hidden;
+}
+/* Mini nav bar appearing in every preview */
+.ds-mini-nav {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 5px;
+  z-index: 2;
+}
+.ds-mini-dot { width: 6px; height: 6px; border-radius: 50%; }
+.ds-mini-bar { flex: 1; height: 8px; border-radius: 4px; opacity: .35; margin-left: 6px; }
+.ds-mini-body { position: absolute; top: 32px; left: 10px; right: 10px; bottom: 10px; z-index: 2; display: flex; flex-direction: column; gap: 6px; }
+.ds-mini-h { height: 10px; border-radius: 4px; }
+.ds-mini-h.xl { height: 14px; }
+.ds-mini-p { height: 7px; border-radius: 3px; opacity: .5; }
+.ds-mini-btn { height: 18px; width: 60px; border-radius: 5px; margin-top: 2px; }
+.ds-mini-card { border-radius: 8px; padding: 7px; display: flex; flex-direction: column; gap: 4px; }
+.ds-mini-row { display: flex; gap: 6px; align-items: flex-start; }
+.ds-mini-col { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
+/* Card meta */
+.ds-card-meta { padding: 14px 16px 16px; }
+.ds-card-name { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.ds-card-desc { font-size: 12px; color: #6b7280; line-height: 1.4; }
+.ds-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.ds-tag { display: inline-block; background: #f3f4f6; color: #6b7280; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 500; }
+.ds-copy-hint { font-size: 10px; color: #9ca3af; }
+
+/* ── Per-style preview themes ───────────────────────────────────────── */
+/* 1 Glassmorphism */
+.prev-glassmorphism { background: linear-gradient(135deg,#4158d0 0%,#c850c0 50%,#ffcc70 100%); }
+.prev-glassmorphism .ds-mini-nav { background: rgba(255,255,255,.12); backdrop-filter: blur(6px); }
+.prev-glassmorphism .ds-mini-dot { background: rgba(255,255,255,.6); }
+.prev-glassmorphism .ds-mini-bar { background: rgba(255,255,255,.5); }
+.prev-glassmorphism .ds-mini-card { background: rgba(255,255,255,.18); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.3); }
+.prev-glassmorphism .ds-mini-h  { background: rgba(255,255,255,.8); }
+.prev-glassmorphism .ds-mini-p  { background: rgba(255,255,255,.5); }
+.prev-glassmorphism .ds-mini-btn{ background: rgba(255,255,255,.35); border: 1px solid rgba(255,255,255,.5); }
+
+/* 2 Neumorphism */
+.prev-neumorphism { background: #e0e5ec; }
+.prev-neumorphism .ds-mini-nav { background: #e0e5ec; }
+.prev-neumorphism .ds-mini-dot { background: #c8cfd8; }
+.prev-neumorphism .ds-mini-bar { background: #c8cfd8; }
+.prev-neumorphism .ds-mini-card { background: #e0e5ec; border-radius: 12px; box-shadow: 5px 5px 10px #b8bec7, -5px -5px 10px #ffffff; }
+.prev-neumorphism .ds-mini-h  { background: #bfc6d0; }
+.prev-neumorphism .ds-mini-p  { background: #c8cfd8; }
+.prev-neumorphism .ds-mini-btn{ background: #e0e5ec; box-shadow: 3px 3px 6px #b8bec7, -3px -3px 6px #ffffff; border-radius: 8px; }
+
+/* 3 Neo Brutalism */
+.prev-neobrutalism { background: #ffffff; border-bottom: 1px solid #000; }
+.prev-neobrutalism .ds-mini-nav { background: #000; }
+.prev-neobrutalism .ds-mini-dot { background: #fff; }
+.prev-neobrutalism .ds-mini-bar { background: #fff; }
+.prev-neobrutalism .ds-mini-card { background: #fff; border: 2px solid #000; box-shadow: 3px 3px 0 #000; border-radius: 0; }
+.prev-neobrutalism .ds-mini-h.xl{ background: #000; height: 16px; }
+.prev-neobrutalism .ds-mini-h  { background: #111; }
+.prev-neobrutalism .ds-mini-p  { background: #555; }
+.prev-neobrutalism .ds-mini-btn{ background: #000; border-radius: 0; border: 2px solid #000; box-shadow: 2px 2px 0 #555; }
+
+/* 4 Minimal Dark */
+.prev-minimaldark { background: #0d0d0d; }
+.prev-minimaldark .ds-mini-nav { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; }
+.prev-minimaldark .ds-mini-dot { background: #333; }
+.prev-minimaldark .ds-mini-bar { background: #2a2a2a; }
+.prev-minimaldark .ds-mini-card { background: #1a1a1a; border: 1px solid #262626; }
+.prev-minimaldark .ds-mini-h  { background: #e0e0e0; }
+.prev-minimaldark .ds-mini-p  { background: #444; }
+.prev-minimaldark .ds-mini-btn{ background: #2dd4bf; border-radius: 4px; }
+
+/* 5 Cyberpunk */
+.prev-cyberpunk { background: #0a0a12; }
+.prev-cyberpunk .ds-mini-nav { background: rgba(0,255,255,.05); border-bottom: 1px solid rgba(0,255,255,.25); }
+.prev-cyberpunk .ds-mini-dot { background: #00ffff; box-shadow: 0 0 4px #00ffff; }
+.prev-cyberpunk .ds-mini-bar { background: rgba(0,255,255,.3); }
+.prev-cyberpunk .ds-mini-card { background: rgba(0,255,255,.04); border: 1px solid rgba(0,255,255,.3); border-radius: 4px; }
+.prev-cyberpunk .ds-mini-h  { background: #00ffff; box-shadow: 0 0 6px #00ffff66; }
+.prev-cyberpunk .ds-mini-p  { background: rgba(255,0,160,.5); }
+.prev-cyberpunk .ds-mini-btn{ background: transparent; border: 1px solid #ff00a0; border-radius: 2px; box-shadow: 0 0 5px #ff00a040; }
+
+/* 6 Vaporwave */
+.prev-vaporwave { background: linear-gradient(160deg,#1a0533 0%,#2d0755 50%,#1a0533 100%); }
+.prev-vaporwave::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: repeating-linear-gradient(0deg, rgba(255,0,255,.15) 0px, rgba(255,0,255,.15) 1px, transparent 1px, transparent 8px); }
+.prev-vaporwave .ds-mini-nav { background: rgba(255,0,255,.1); }
+.prev-vaporwave .ds-mini-dot { background: #ff71ce; }
+.prev-vaporwave .ds-mini-bar { background: linear-gradient(90deg,#ff71ce,#01cdfe); opacity: .6; }
+.prev-vaporwave .ds-mini-card { background: rgba(255,113,206,.08); border: 1px solid rgba(255,113,206,.35); }
+.prev-vaporwave .ds-mini-h  { background: linear-gradient(90deg,#ff71ce,#01cdfe); }
+.prev-vaporwave .ds-mini-p  { background: rgba(1,205,254,.4); }
+.prev-vaporwave .ds-mini-btn{ background: linear-gradient(90deg,#ff71ce,#b967ff); border-radius: 3px; }
+
+/* 7 Claymorphism */
+.prev-claymorphism { background: #fef3c7; }
+.prev-claymorphism .ds-mini-nav { background: #fde68a; }
+.prev-claymorphism .ds-mini-dot { background: #f472b6; }
+.prev-claymorphism .ds-mini-bar { background: #86efac; }
+.prev-claymorphism .ds-mini-card { background: #a78bfa; border-radius: 20px; box-shadow: 4px 4px 0 #7c3aed; border: none; }
+.prev-claymorphism .ds-mini-h  { background: #fff; border-radius: 6px; }
+.prev-claymorphism .ds-mini-p  { background: rgba(255,255,255,.6); border-radius: 4px; }
+.prev-claymorphism .ds-mini-btn{ background: #f472b6; border-radius: 12px; box-shadow: 3px 3px 0 #db2777; }
+
+/* 8 Botanical */
+.prev-botanical { background: #1a3a2a; }
+.prev-botanical .ds-mini-nav { background: #142d20; border-bottom: 1px solid #2d5a3d; }
+.prev-botanical .ds-mini-dot { background: #4a7c59; }
+.prev-botanical .ds-mini-bar { background: #2d5a3d; }
+.prev-botanical .ds-mini-card { background: #f5f0e8; border-radius: 6px; }
+.prev-botanical .ds-mini-h  { background: #2d5a3d; }
+.prev-botanical .ds-mini-p  { background: #8d9e8d; }
+.prev-botanical .ds-mini-btn{ background: #4a7c59; border-radius: 4px; }
+
+/* 9 Y2K */
+.prev-y2k { background: #0a0a1a; }
+.prev-y2k .ds-mini-nav { background: linear-gradient(90deg,#ff0066,#6600ff); }
+.prev-y2k .ds-mini-dot { background: #00ff66; }
+.prev-y2k .ds-mini-bar { background: rgba(0,255,102,.4); }
+.prev-y2k .ds-mini-card { background: #111; border: 2px solid #ff0066; border-radius: 2px; }
+.prev-y2k .ds-mini-h  { background: #ff0066; }
+.prev-y2k .ds-mini-p  { background: rgba(0,255,102,.6); }
+.prev-y2k .ds-mini-btn{ background: linear-gradient(90deg,#ff0066,#00ff66); border-radius: 2px; }
+
+/* 10 Academia */
+.prev-academia { background: #f5efe0; }
+.prev-academia .ds-mini-nav { background: #e8d9c0; border-bottom: 1px solid #c9b89a; }
+.prev-academia .ds-mini-dot { background: #8b1a1a; }
+.prev-academia .ds-mini-bar { background: #c9b89a; }
+.prev-academia .ds-mini-card { background: #fff8ed; border: 1px solid #d4b896; border-radius: 4px; }
+.prev-academia .ds-mini-h  { background: #3d1c02; }
+.prev-academia .ds-mini-h.xl{ background: #8b1a1a; }
+.prev-academia .ds-mini-p  { background: #9c7a5a; }
+.prev-academia .ds-mini-btn{ background: #8b1a1a; border-radius: 2px; }
+
+/* 11 Industrial */
+.prev-industrial { background: #1a1a1a; }
+.prev-industrial .ds-mini-nav { background: #111; border-bottom: 2px solid #c2440e; }
+.prev-industrial .ds-mini-dot { background: #c2440e; }
+.prev-industrial .ds-mini-bar { background: #333; }
+.prev-industrial .ds-mini-card { background: #242424; border: 1px solid #3a3a3a; border-radius: 3px; }
+.prev-industrial .ds-mini-h  { background: #c2440e; }
+.prev-industrial .ds-mini-p  { background: #555; }
+.prev-industrial .ds-mini-btn{ background: #f5c518; border-radius: 0; }
+
+/* 12 Sketch */
+.prev-sketch { background: #fafaf5; }
+.prev-sketch .ds-mini-nav { background: #fafaf5; border-bottom: 2px solid #111; }
+.prev-sketch .ds-mini-dot { background: #111; border-radius: 1px; }
+.prev-sketch .ds-mini-bar { background: #ddd; border: 1px solid #aaa; }
+.prev-sketch .ds-mini-card { background: #fff; border: 2px solid #111; border-radius: 2px; box-shadow: 2px 2px 0 #aaa; }
+.prev-sketch .ds-mini-h  { background: #111; border-radius: 1px; }
+.prev-sketch .ds-mini-p  { background: repeating-linear-gradient(0deg,#ccc,#ccc 1px,transparent 1px,transparent 4px); border-radius: 0; }
+.prev-sketch .ds-mini-btn{ background: #fff; border: 2px solid #111; border-radius: 2px; box-shadow: 1px 1px 0 #888; }
+
+/* 13 Maximalism */
+.prev-maximalism { background: linear-gradient(135deg,#ff6b6b 0%,#ffd93d 25%,#6bcb77 50%,#4d96ff 75%,#ff6bff 100%); }
+.prev-maximalism .ds-mini-nav { background: rgba(0,0,0,.3); }
+.prev-maximalism .ds-mini-dot { background: #fff; }
+.prev-maximalism .ds-mini-bar { background: rgba(255,255,255,.6); background-size: 8px 8px; }
+.prev-maximalism .ds-mini-card { background: rgba(255,255,100,.85); border: 3px solid #111; border-radius: 8px; box-shadow: 4px 4px 0 #111; }
+.prev-maximalism .ds-mini-h  { background: #111; }
+.prev-maximalism .ds-mini-p  { background: rgba(0,0,0,.4); }
+.prev-maximalism .ds-mini-btn{ background: #ff6b6b; border: 2px solid #111; border-radius: 4px; }
+
+/* 14 Organic */
+.prev-organic { background: #f2e8d9; }
+.prev-organic .ds-mini-nav { background: #e8d5c0; }
+.prev-organic .ds-mini-dot { background: #c4714a; }
+.prev-organic .ds-mini-bar { background: #8fa87a; opacity: .6; border-radius: 10px; }
+.prev-organic .ds-mini-card { background: #fff; border: 1px solid #d4c0aa; border-radius: 24px 8px 20px 12px; }
+.prev-organic .ds-mini-h  { background: #c4714a; border-radius: 10px; }
+.prev-organic .ds-mini-p  { background: #8fa87a; border-radius: 8px; }
+.prev-organic .ds-mini-btn{ background: #c4714a; border-radius: 20px 4px 16px 4px; }
+
+/* 15 Enterprise */
+.prev-enterprise { background: #f8fafc; }
+.prev-enterprise .ds-mini-nav { background: #1e40af; }
+.prev-enterprise .ds-mini-dot { background: rgba(255,255,255,.8); }
+.prev-enterprise .ds-mini-bar { background: rgba(255,255,255,.4); }
+.prev-enterprise .ds-mini-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+.prev-enterprise .ds-mini-h  { background: #1e40af; }
+.prev-enterprise .ds-mini-p  { background: #94a3b8; }
+.prev-enterprise .ds-mini-btn{ background: #1a56db; border-radius: 4px; }
+
+/* 16 Web3 */
+.prev-web3 { background: #050520; }
+.prev-web3 .ds-mini-nav { background: rgba(139,92,246,.1); border-bottom: 1px solid rgba(139,92,246,.3); }
+.prev-web3 .ds-mini-dot { background: #8b5cf6; box-shadow: 0 0 6px #8b5cf6; }
+.prev-web3 .ds-mini-bar { background: rgba(139,92,246,.3); }
+.prev-web3 .ds-mini-card { background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.3); border-radius: 10px; }
+.prev-web3 .ds-mini-h  { background: linear-gradient(90deg,#8b5cf6,#06b6d4); }
+.prev-web3 .ds-mini-p  { background: rgba(6,182,212,.35); }
+.prev-web3 .ds-mini-btn{ background: linear-gradient(90deg,#8b5cf6,#6d28d9); border-radius: 6px; box-shadow: 0 0 10px #8b5cf640; }
+
+/* 17 Playful Geometric */
+.prev-playful { background: #fffbeb; }
+.prev-playful .ds-mini-nav { background: #ffde00; }
+.prev-playful .ds-mini-dot { background: #ff6b6b; }
+.prev-playful .ds-mini-bar { background: #4ecdc4; opacity: .7; }
+.prev-playful .ds-mini-card { background: #fff; border: 2px solid #111; border-radius: 16px; }
+.prev-playful .ds-mini-h  { background: #ff6b6b; border-radius: 6px; }
+.prev-playful .ds-mini-p  { background: #4ecdc4; border-radius: 10px; }
+.prev-playful .ds-mini-btn{ background: #ffde00; border: 2px solid #111; border-radius: 12px; }
+
+/* 18 Bold Typography */
+.prev-boldtype { background: #fff; }
+.prev-boldtype .ds-mini-nav { background: #000; }
+.prev-boldtype .ds-mini-dot { background: #fff; }
+.prev-boldtype .ds-mini-bar { background: rgba(255,255,255,.4); }
+.prev-boldtype .ds-mini-card { background: #fff; border: none; border-radius: 0; }
+.prev-boldtype .ds-mini-h.xl{ background: #000; height: 22px; border-radius: 0; }
+.prev-boldtype .ds-mini-h  { background: #111; height: 16px; border-radius: 0; }
+.prev-boldtype .ds-mini-p  { background: #bbb; border-radius: 0; }
+.prev-boldtype .ds-mini-btn{ background: #ff2d20; border-radius: 0; }
+
+/* 19 Swiss International */
+.prev-swiss { background: #fff; }
+.prev-swiss .ds-mini-nav { background: #fff; border-bottom: 3px solid #dc2626; }
+.prev-swiss .ds-mini-dot { background: #dc2626; border-radius: 0; }
+.prev-swiss .ds-mini-bar { background: #000; height: 2px; border-radius: 0; }
+.prev-swiss .ds-mini-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 0; }
+.prev-swiss .ds-mini-h.xl{ background: #000; border-radius: 0; }
+.prev-swiss .ds-mini-h  { background: #dc2626; border-radius: 0; }
+.prev-swiss .ds-mini-p  { background: #aaa; border-radius: 0; }
+.prev-swiss .ds-mini-btn{ background: #dc2626; border-radius: 0; }
+
+/* 20 Art Nouveau */
+.prev-artnouveau { background: #1a2a0a; }
+.prev-artnouveau .ds-mini-nav { background: #111d06; border-bottom: 2px solid #c9a84c; }
+.prev-artnouveau .ds-mini-dot { background: #c9a84c; }
+.prev-artnouveau .ds-mini-bar { background: #2d5a27; opacity: .7; }
+.prev-artnouveau .ds-mini-card { background: #1e2e10; border: 1px solid #c9a84c; border-radius: 2px 16px 2px 16px; }
+.prev-artnouveau .ds-mini-h  { background: #c9a84c; }
+.prev-artnouveau .ds-mini-p  { background: #4a7c40; opacity: .8; }
+.prev-artnouveau .ds-mini-btn{ background: #c9a84c; border-radius: 0 10px 0 10px; }
+
+/* 21 Memphis */
+.prev-memphis { background: #fff; }
+.prev-memphis { background: #fff radial-gradient(circle, #000 1px, transparent 1px) 0 0 / 12px 12px; }
+.prev-memphis .ds-mini-nav { background: #fff; border-bottom: 3px solid #000; }
+.prev-memphis .ds-mini-dot:nth-child(1){ background: #ff006e; border-radius: 0; }
+.prev-memphis .ds-mini-dot:nth-child(2){ background: #ffbe0b; border-radius: 50%; }
+.prev-memphis .ds-mini-dot:nth-child(3){ background: #3a86ff; border-radius: 0; transform: rotate(45deg); }
+.prev-memphis .ds-mini-card { background: #ffbe0b; border: 2px solid #000; border-radius: 0 14px 0 14px; }
+.prev-memphis .ds-mini-h  { background: #000; border-radius: 0; }
+.prev-memphis .ds-mini-p  { background: rgba(0,0,0,.3); border-radius: 0; }
+.prev-memphis .ds-mini-btn{ background: #ff006e; border: 2px solid #000; border-radius: 14px 0 14px 0; }
+
+/* 22 Neon Noir */
+.prev-neonnoir { background: #080808; }
+.prev-neonnoir .ds-mini-nav { background: #0d0d0d; border-bottom: 1px solid rgba(255,0,144,.3); }
+.prev-neonnoir .ds-mini-dot { background: #ff0090; box-shadow: 0 0 6px #ff0090; }
+.prev-neonnoir .ds-mini-bar { background: rgba(57,255,20,.2); }
+.prev-neonnoir .ds-mini-card { background: #111; border: 1px solid rgba(57,255,20,.35); border-radius: 4px; box-shadow: 0 0 8px rgba(57,255,20,.1); }
+.prev-neonnoir .ds-mini-h  { background: #39ff14; box-shadow: 0 0 6px #39ff1466; }
+.prev-neonnoir .ds-mini-p  { background: rgba(255,0,144,.4); }
+.prev-neonnoir .ds-mini-btn{ background: transparent; border: 1px solid #ff0090; box-shadow: 0 0 8px #ff009044; border-radius: 3px; }
+
+/* 23 Soft Pastel */
+.prev-softpastel { background: linear-gradient(135deg,#f0eeff 0%,#ffe4ef 50%,#e4fff9 100%); }
+.prev-softpastel .ds-mini-nav { background: rgba(255,255,255,.7); }
+.prev-softpastel .ds-mini-dot { background: #c4b5fd; }
+.prev-softpastel .ds-mini-bar { background: #fbcfe8; }
+.prev-softpastel .ds-mini-card { background: rgba(255,255,255,.85); border: 1px solid rgba(196,181,253,.4); border-radius: 20px; box-shadow: 0 4px 16px rgba(196,181,253,.2); }
+.prev-softpastel .ds-mini-h  { background: #c4b5fd; border-radius: 8px; }
+.prev-softpastel .ds-mini-p  { background: #fbcfe8; border-radius: 6px; }
+.prev-softpastel .ds-mini-btn{ background: #c4b5fd; border-radius: 14px; }
+
+/* 24 Editorial */
+.prev-editorial { background: #fff; }
+.prev-editorial .ds-mini-nav { background: #fff; border-bottom: 3px solid #000; }
+.prev-editorial .ds-mini-dot { background: #000; border-radius: 0; width: 8px; height: 8px; }
+.prev-editorial .ds-mini-bar { background: #000; height: 1px; border-radius: 0; opacity: .6; }
+.prev-editorial .ds-mini-card { background: #fff; border: none; padding: 0; gap: 5px; }
+.prev-editorial .ds-mini-h.xl{ background: #000; height: 18px; border-radius: 0; }
+.prev-editorial .ds-mini-h  { background: #888; height: 8px; border-radius: 0; }
+.prev-editorial .ds-mini-p  { background: #ccc; height: 6px; border-radius: 0; }
+.prev-editorial .ds-mini-btn{ background: #e11d48; border-radius: 0; }
+
+/* 25 Bauhaus */
+.prev-bauhaus { background: #fff; }
+.prev-bauhaus .ds-mini-nav { background: #e63329; }
+.prev-bauhaus .ds-mini-dot:nth-child(1){ background: #f5c518; border-radius: 50%; width: 8px; height: 8px; }
+.prev-bauhaus .ds-mini-dot:nth-child(2){ background: #2557a7; border-radius: 0; width: 8px; height: 8px; }
+.prev-bauhaus .ds-mini-dot:nth-child(3){ background: #fff; border-radius: 50%; }
+.prev-bauhaus .ds-mini-bar { background: rgba(255,255,255,.5); border-radius: 0; }
+.prev-bauhaus .ds-mini-card { background: #fff; border: 2px solid #111; border-radius: 0; display: flex; flex-direction: row; gap: 4px; padding: 5px; overflow: hidden; }
+.prev-bauhaus .ds-mini-card::before { content: ''; width: 22px; background: #f5c518; border-radius: 50% 0 0 50%; flex-shrink: 0; }
+.prev-bauhaus .ds-mini-h  { background: #e63329; border-radius: 0; }
+.prev-bauhaus .ds-mini-p  { background: #2557a7; border-radius: 0; opacity: .6; }
+.prev-bauhaus .ds-mini-btn{ background: #e63329; border-radius: 0; }
+
+/* 26 Japanese Minimalism */
+.prev-japmin { background: #fafaf8; }
+.prev-japmin .ds-mini-nav { background: #fafaf8; border-bottom: 1px solid #e8e8e4; }
+.prev-japmin .ds-mini-dot { background: #2d2d2d; }
+.prev-japmin .ds-mini-bar { background: #ddd; }
+.prev-japmin .ds-mini-card { background: #fff; border: 1px solid #e8e8e4; border-radius: 4px; }
+.prev-japmin .ds-mini-h.xl{ background: #1a1a1a; height: 20px; width: 80px; border-radius: 1px; }
+.prev-japmin .ds-mini-h  { background: #4a4a4a; width: 50px; }
+.prev-japmin .ds-mini-p  { background: #ccc; width: 90%; }
+.prev-japmin .ds-mini-btn{ background: transparent; border: 1px solid #1a1a1a; border-radius: 2px; width: 40px; }
+
+/* 27 Aurora */
+.prev-aurora { background: #060612; }
+.prev-aurora::before { content: ''; position: absolute; top: -20px; left: -20px; right: -20px; height: 120px; background: radial-gradient(ellipse at 30% 50%, rgba(0,200,150,.35) 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(100,50,255,.3) 0%, transparent 60%), radial-gradient(ellipse at 50% 80%, rgba(0,150,255,.25) 0%, transparent 60%); }
+.prev-aurora .ds-mini-nav { background: rgba(255,255,255,.03); border-bottom: 1px solid rgba(0,200,150,.2); position: relative; z-index: 3; }
+.prev-aurora .ds-mini-dot { background: #00c896; box-shadow: 0 0 6px #00c896; position: relative; z-index: 3; }
+.prev-aurora .ds-mini-bar { background: rgba(0,200,150,.3); position: relative; z-index: 3; }
+.prev-aurora .ds-mini-body { z-index: 3; }
+.prev-aurora .ds-mini-card { background: rgba(255,255,255,.04); border: 1px solid rgba(0,200,150,.25); border-radius: 8px; }
+.prev-aurora .ds-mini-h  { background: linear-gradient(90deg,#00c896,#6432ff); }
+.prev-aurora .ds-mini-p  { background: rgba(100,50,255,.4); }
+.prev-aurora .ds-mini-btn{ background: linear-gradient(90deg,#00c896,#6432ff); border-radius: 5px; }
+
+/* 28 Monochromatic */
+.prev-mono { background: #eff6ff; }
+.prev-mono .ds-mini-nav { background: #1d4ed8; }
+.prev-mono .ds-mini-dot { background: #93c5fd; }
+.prev-mono .ds-mini-bar { background: rgba(255,255,255,.4); }
+.prev-mono .ds-mini-card { background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; }
+.prev-mono .ds-mini-h  { background: #1d4ed8; }
+.prev-mono .ds-mini-p  { background: #93c5fd; }
+.prev-mono .ds-mini-btn{ background: #2563eb; border-radius: 5px; }
+
+/* 29 Skeuomorphism */
+.prev-skeu { background: #8B7355; background-image: repeating-linear-gradient(45deg,rgba(0,0,0,.03) 0px,rgba(0,0,0,.03) 1px,transparent 1px,transparent 8px); }
+.prev-skeu .ds-mini-nav { background: linear-gradient(180deg,#555 0%,#333 100%); border-bottom: 2px solid #222; }
+.prev-skeu .ds-mini-dot { background: radial-gradient(circle at 35% 35%,#f00,#600); }
+.prev-skeu .ds-mini-bar { background: linear-gradient(180deg,#ccc 0%,#999 100%); height: 10px; border-radius: 3px; border: 1px solid #777; }
+.prev-skeu .ds-mini-card { background: linear-gradient(180deg,#f5f0e8 0%,#e8e0d0 100%); border: 1px solid #b0a090; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.5),0 2px 4px rgba(0,0,0,.25); }
+.prev-skeu .ds-mini-h  { background: #5d4037; }
+.prev-skeu .ds-mini-p  { background: #9e8e7e; }
+.prev-skeu .ds-mini-btn{ background: linear-gradient(180deg,#8bc34a 0%,#558b2f 100%); border: 1px solid #33691e; border-radius: 4px; box-shadow: 0 2px 0 rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.3); }
+
+/* 30 Sci-Fi HUD */
+.prev-scifi { background: #020209; }
+.prev-scifi::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg,rgba(0,212,255,.03) 0px,rgba(0,212,255,.03) 1px,transparent 1px,transparent 24px), repeating-linear-gradient(0deg,rgba(0,212,255,.03) 0px,rgba(0,212,255,.03) 1px,transparent 1px,transparent 24px); }
+.prev-scifi .ds-mini-nav { background: rgba(0,212,255,.05); border-bottom: 1px solid rgba(0,212,255,.25); z-index: 3; position: relative; }
+.prev-scifi .ds-mini-dot { background: #00d4ff; box-shadow: 0 0 5px #00d4ff; position: relative; z-index: 3; }
+.prev-scifi .ds-mini-bar { background: rgba(0,212,255,.3); position: relative; z-index: 3; }
+.prev-scifi .ds-mini-body { z-index: 3; }
+.prev-scifi .ds-mini-card { background: rgba(0,212,255,.04); border: 1px solid rgba(0,212,255,.35); border-radius: 3px; }
+.prev-scifi .ds-mini-h  { background: #00d4ff; box-shadow: 0 0 6px #00d4ff55; }
+.prev-scifi .ds-mini-p  { background: rgba(0,212,255,.3); }
+.prev-scifi .ds-mini-btn{ background: transparent; border: 1px solid #00d4ff; border-radius: 2px; box-shadow: 0 0 8px rgba(0,212,255,.3); }
+
+/* 31 Art Deco */
+.prev-artdeco { background: #111; }
+.prev-artdeco .ds-mini-nav { background: #111; border-bottom: 2px solid #c9a132; }
+.prev-artdeco .ds-mini-dot { background: #c9a132; }
+.prev-artdeco .ds-mini-bar { background: linear-gradient(90deg,#c9a132,#f5e6a3,#c9a132); opacity: .6; }
+.prev-artdeco .ds-mini-card { background: #1a1508; border: 1px solid #c9a132; border-radius: 0; }
+.prev-artdeco .ds-mini-card::before { content: ''; display: block; height: 3px; background: repeating-linear-gradient(90deg,#c9a132 0,#c9a132 4px,transparent 4px,transparent 8px); margin-bottom: 5px; }
+.prev-artdeco .ds-mini-h  { background: linear-gradient(90deg,#c9a132,#f5e6a3); }
+.prev-artdeco .ds-mini-p  { background: rgba(201,161,50,.35); }
+.prev-artdeco .ds-mini-btn{ background: #c9a132; border-radius: 0; }
+
+/* ── Modal ──────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: #fff; color: #111827;
+  border-radius: 18px;
+  width: 100%; max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 64px rgba(0,0,0,.3);
+  transform: translateY(20px) scale(.97);
+  transition: transform .25s;
+  position: relative;
+}
+.modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #f3f4f6; border: none; cursor: pointer;
+  font-size: 18px; line-height: 1; color: #374151;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+  z-index: 2;
+}
+.modal-close:hover { background: #e5e7eb; }
+.modal-preview {
+  height: 200px;
+  border-radius: 18px 18px 0 0;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.modal-preview .ds-mini-nav   { height: 36px; }
+.modal-preview .ds-mini-body  { top: 40px; left: 16px; right: 16px; bottom: 16px; }
+.modal-preview .ds-mini-h.xl  { height: 20px; }
+.modal-preview .ds-mini-h     { height: 12px; }
+.modal-preview .ds-mini-p     { height: 9px; }
+.modal-preview .ds-mini-btn   { height: 24px; width: 80px; }
+.modal-preview .ds-mini-card  { border-radius: 12px; padding: 10px; gap: 7px; }
+.modal-body { padding: 24px 28px 28px; }
+.modal-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #9ca3af; margin-bottom: 6px; }
+.modal-title { font-size: 26px; font-weight: 800; color: #111827; letter-spacing: -.01em; margin-bottom: 6px; }
+.modal-tagline { font-size: 14px; color: #6b7280; margin-bottom: 20px; }
+.modal-divider { border: none; border-top: 1px solid #f3f4f6; margin: 0 0 20px; }
+.modal-prompt-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #9ca3af; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.modal-prompt-label::after { content: ''; flex: 1; height: 1px; background: #f3f4f6; }
+.modal-prompt-text {
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  border-radius: 10px; padding: 16px; font-size: 13.5px;
+  color: #374151; line-height: 1.75; margin-bottom: 20px;
+  white-space: pre-wrap;
+}
+.modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.modal-tag { background: #f3f4f6; color: #6b7280; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 500; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-copy-btn {
+  flex: 1; padding: 12px 20px; background: #6366f1;
+  color: #fff; border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background .15s, transform .1s;
+  font-family: inherit;
+}
+.modal-copy-btn:hover   { background: #4f46e5; }
+.modal-copy-btn:active  { transform: scale(.98); }
+.modal-copy-btn.copied  { background: #16a34a; }
+.modal-close-btn {
+  padding: 12px 20px; background: #f3f4f6;
+  color: #374151; border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+  font-family: inherit;
+}
+.modal-close-btn:hover { background: #e5e7eb; }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  header { padding: 16px; }
+  .tab-nav { padding: 0 16px; }
+  .search-wrap,.filters,.tag-section,.results-bar,.grid { padding-left: 16px; padding-right: 16px; }
+  .grid { grid-template-columns: 1fr; }
+  .header-stats { display: none; }
+  .ds-controls { padding: 12px 16px; top: 53px; }
+  .ds-grid { padding: 20px 16px 40px; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); }
+  .ds-count { padding: 16px 16px 0; }
+  .ds-hero { padding: 36px 16px 28px; }
+  .ds-hero h2 { font-size: 26px; }
+}
 </style>
 </head>
 <body>
 
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
 <header>
   <div class="logo">
     <div class="logo-icon">🎨</div>
@@ -386,81 +712,494 @@
     </div>
   </div>
   <div class="header-stats">
-    <div class="stat-item">
-      <div class="num" id="totalCount">75</div>
-      <div class="label">Prompts</div>
-    </div>
-    <div class="stat-item">
-      <div class="num">9</div>
-      <div class="label">Categories</div>
-    </div>
-    <div class="stat-item">
-      <div class="num">2</div>
-      <div class="label">Sources</div>
-    </div>
+    <div class="stat-item"><div class="num" id="totalCount">75</div><div class="label">Prompts</div></div>
+    <div class="stat-item"><div class="num">31</div><div class="label">Styles</div></div>
+    <div class="stat-item"><div class="num">2</div><div class="label">Sources</div></div>
   </div>
 </header>
 
-<div class="search-wrap">
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search prompts by title, description or tag…" autocomplete="off" />
-    <span class="search-icon">⌕</span>
+<!-- ── Tab nav ─────────────────────────────────────────────────────────── -->
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="prompts">📚 Prompts Library</button>
+  <button class="tab-btn" data-tab="styles">✦ Design Styles</button>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     TAB 1 — Prompts Library (original)
+     ════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-prompts" class="tab-panel active">
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search prompts by title, description or tag…" autocomplete="off" />
+      <span class="search-icon">⌕</span>
+    </div>
   </div>
+
+  <div class="filters">
+    <div class="filter-row">
+      <span class="filter-label">Category</span>
+      <button class="chip active" data-filter="category" data-value="all">All</button>
+      <button class="chip" data-filter="category" data-value="Landing Page">Landing Page</button>
+      <button class="chip" data-filter="category" data-value="Mobile App">Mobile App</button>
+      <button class="chip" data-filter="category" data-value="Dashboard">Dashboard</button>
+      <button class="chip" data-filter="category" data-value="E-Commerce">E-Commerce</button>
+      <button class="chip" data-filter="category" data-value="Component">Component</button>
+      <button class="chip" data-filter="category" data-value="Web App">Web App</button>
+      <button class="chip" data-filter="category" data-value="Portfolio">Portfolio</button>
+      <button class="chip" data-filter="category" data-value="Design System">Design System</button>
+      <button class="chip" data-filter="category" data-value="Content">Content</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Source</span>
+      <button class="chip active" data-filter="source" data-value="all">All</button>
+      <button class="chip source-dp" data-filter="source" data-value="designprompts.dev">designprompts.dev</button>
+      <button class="chip source-tt" data-filter="source" data-value="tisatech.in">tisatech.in</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Difficulty</span>
+      <button class="chip active" data-filter="difficulty" data-value="all">All</button>
+      <button class="chip diff-beginner"    data-filter="difficulty" data-value="beginner">Beginner</button>
+      <button class="chip diff-intermediate" data-filter="difficulty" data-value="intermediate">Intermediate</button>
+      <button class="chip diff-advanced"    data-filter="difficulty" data-value="advanced">Advanced</button>
+    </div>
+  </div>
+
+  <div class="tag-section">
+    <div class="tag-section-label">Popular Tags</div>
+    <div class="tag-cloud" id="tagCloud"></div>
+  </div>
+
+  <div class="results-bar">
+    <div class="result-count">Showing <span id="resultCount">0</span> prompts</div>
+    <button class="clear-btn" id="clearBtn" style="display:none">Clear all filters</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
 </div>
 
-<div class="filters">
-  <div class="filter-row">
-    <span class="filter-label">Category</span>
-    <button class="chip active" data-filter="category" data-value="all">All</button>
-    <button class="chip" data-filter="category" data-value="Landing Page">Landing Page</button>
-    <button class="chip" data-filter="category" data-value="Mobile App">Mobile App</button>
-    <button class="chip" data-filter="category" data-value="Dashboard">Dashboard</button>
-    <button class="chip" data-filter="category" data-value="E-Commerce">E-Commerce</button>
-    <button class="chip" data-filter="category" data-value="Component">Component</button>
-    <button class="chip" data-filter="category" data-value="Web App">Web App</button>
-    <button class="chip" data-filter="category" data-value="Portfolio">Portfolio</button>
-    <button class="chip" data-filter="category" data-value="Design System">Design System</button>
-    <button class="chip" data-filter="category" data-value="Content">Content</button>
+<!-- ════════════════════════════════════════════════════════════════════════
+     TAB 2 — Design Styles  (designprompts.dev replica)
+     ════════════════════════════════════════════════════════════════════════ -->
+<div id="panel-styles" class="tab-panel">
+
+  <div class="ds-hero">
+    <div class="ds-hero-badge">✦ AI-Powered Design Style Explorer</div>
+    <h2>Explore <span>31+ Design Styles</span><br>Rendered From the Same Data</h2>
+    <p>Drop any prompt into your AI assistant to ship beautiful, consistent interfaces in minutes. One data model — infinite aesthetics.</p>
+    <div class="ds-hero-meta">
+      <span class="ds-hero-stat"><strong>31</strong> unique styles</span>
+      <span class="ds-hero-stat">·</span>
+      <span class="ds-hero-stat"><strong>Click</strong> any card to view &amp; copy the prompt</span>
+      <span class="ds-hero-stat">·</span>
+      <span class="ds-hero-stat"><strong>Works</strong> with Claude, GPT-4, Gemini</span>
+    </div>
   </div>
-  <div class="filter-row">
-    <span class="filter-label">Source</span>
-    <button class="chip active" data-filter="source" data-value="all">All</button>
-    <button class="chip source-dp" data-filter="source" data-value="designprompts.dev">designprompts.dev</button>
-    <button class="chip source-tt" data-filter="source" data-value="tisatech.in">tisatech.in</button>
+
+  <div class="ds-controls">
+    <div class="ds-search">
+      <input type="text" id="dsSearch" placeholder="Search styles…" autocomplete="off" />
+      <span class="ds-search-icon">⌕</span>
+    </div>
+    <div class="ds-filter-btns" id="dsCategoryBtns">
+      <button class="ds-chip active" data-dscat="all">All</button>
+      <button class="ds-chip" data-dscat="Dark">Dark</button>
+      <button class="ds-chip" data-dscat="Light">Light</button>
+      <button class="ds-chip" data-dscat="Colorful">Colorful</button>
+      <button class="ds-chip" data-dscat="Minimal">Minimal</button>
+      <button class="ds-chip" data-dscat="Retro">Retro</button>
+      <button class="ds-chip" data-dscat="Futuristic">Futuristic</button>
+    </div>
   </div>
-  <div class="filter-row">
-    <span class="filter-label">Difficulty</span>
-    <button class="chip active" data-filter="difficulty" data-value="all">All</button>
-    <button class="chip diff-beginner" data-filter="difficulty" data-value="beginner">Beginner</button>
-    <button class="chip diff-intermediate" data-filter="difficulty" data-value="intermediate">Intermediate</button>
-    <button class="chip diff-advanced" data-filter="difficulty" data-value="advanced">Advanced</button>
-  </div>
+
+  <div class="ds-count">Showing <span id="dsCount">31</span> styles</div>
+  <div class="ds-grid" id="dsGrid"></div>
 </div>
 
-<div class="tag-section">
-  <div class="tag-section-label">Popular Tags</div>
-  <div class="tag-cloud" id="tagCloud"></div>
+<!-- ── Modal ────────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <div class="modal-preview ds-preview" id="modalPreview"></div>
+    <div class="modal-body">
+      <div class="modal-label">Design Style</div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-tagline" id="modalTagline"></div>
+      <hr class="modal-divider" />
+      <div class="modal-prompt-label">Prompt</div>
+      <div class="modal-prompt-text" id="modalPrompt"></div>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-actions">
+        <button class="modal-copy-btn" id="modalCopyBtn">Copy Prompt</button>
+        <button class="modal-close-btn" id="modalCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
-
-<div class="results-bar">
-  <div class="result-count">Showing <span id="resultCount">0</span> prompts</div>
-  <button class="clear-btn" id="clearBtn" style="display:none">Clear all filters</button>
-</div>
-
-<div class="grid" id="grid"></div>
 
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
-const state = {
-  prompts: [],
-  search: '',
-  category: 'all',
-  source: 'all',
-  difficulty: 'all',
-  tag: null,
-};
+/* ══════════════════════════════════════════════════════════════════════════
+   TAB SWITCHING
+   ══════════════════════════════════════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
 
-// ─── Load data ───────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════════════════
+   DESIGN STYLES DATA
+   ══════════════════════════════════════════════════════════════════════════ */
+const STYLES = [
+  {
+    id:'glassmorphism', name:'Glassmorphism', cat:'Dark',
+    tagline:'Frosted glass panels, blur & layered transparency',
+    tags:['glass','blur','transparent','gradient','modern'],
+    prevClass:'prev-glassmorphism',
+    prompt:'Design the interface using glassmorphism aesthetics: semi-transparent frosted glass panels with backdrop-filter: blur(20px), subtle white borders at rgba(255,255,255,0.2), and translucent cards layered over a vivid gradient background (deep blue to purple to amber). Use white or light-colored text with soft drop shadows, glowing accent elements, and a sense of depth through layered transparency. Every surface should feel like polished etched glass floating in luminous space.'
+  },
+  {
+    id:'neumorphism', name:'Neumorphism', cat:'Light',
+    tagline:'Soft-extruded UI with dual-tone shadow play',
+    tags:['soft-ui','shadow','monochrome','tactile','minimal'],
+    prevClass:'prev-neumorphism',
+    prompt:'Apply soft neumorphic UI design throughout: all elements appear extruded from or pressed into a single unified background (#e0e5ec). Cards and buttons use dual-tone box shadows — a soft light highlight shadow upper-left and a darker shadow lower-right — creating a tactile 3D illusion without gradients or bright colors. Keep typography clean and minimal in medium gray. Interactive elements show inset shadow on press. The entire surface feels like one seamless, sculpted material.'
+  },
+  {
+    id:'neobrutalism', name:'Neo Brutalism', cat:'Light',
+    tagline:'Raw black borders, stark contrast, editorial power',
+    tags:['brutal','black-white','editorial','bold','borders'],
+    prevClass:'prev-neobrutalism',
+    prompt:'A stark, editorial design system built on pure black and white with no accent colors — just dramatic contrast, oversized typography, thick 2–3px black borders on every element, and hard box-shadows (4px 4px 0 #000) instead of soft blur shadows. Buttons and cards use offset solid shadows. Use a bold condensed sans-serif or slab serif typeface at large scales. The layout is intentionally raw and unapologetically bold — evoking high-end fashion editorials and brutalist architecture.'
+  },
+  {
+    id:'minimaldark', name:'Minimal Dark', cat:'Dark',
+    tagline:'Deep backgrounds, generous space, pure restraint',
+    tags:['dark','minimal','clean','neutral','sophisticated'],
+    prevClass:'prev-minimaldark',
+    prompt:'Design a minimal dark-mode interface: deep near-black background (#0d0d0d), with UI surfaces in dark gray (#1a1a1a, #262626). Typography is clean Inter or system sans-serif in white and muted gray (#888). Layout breathes — generous padding, ample line-height, no decorative elements. Use a single muted teal (#2dd4bf) accent sparingly for interactive states only. Every design decision should be justified by function. Remove every element that does not earn its place.'
+  },
+  {
+    id:'cyberpunk', name:'Cyberpunk', cat:'Dark',
+    tagline:'Neon circuits, scanner lines, megacity UI',
+    tags:['neon','dark','futuristic','cyan','glitch'],
+    prevClass:'prev-cyberpunk',
+    prompt:'Design a cyberpunk-themed UI: very dark base (#0a0a12), electric cyan (#00ffff) and hot magenta (#ff00a0) neon accents. Apply neon glow via text-shadow and box-shadow on key elements. Structural elements use thin glowing borders. Add subtle scanline or diagonal grid overlays as texture. Use a techy monospace or condensed sans-serif. Corner-bracket motifs frame important panels. The interface feels like a hacker terminal inside a rain-soaked neon megacity at 3am.'
+  },
+  {
+    id:'vaporwave', name:'Vaporwave', cat:'Dark',
+    tagline:'Purple-pink gradients, retro grids, digital nostalgia',
+    tags:['retro','gradient','purple','pink','80s'],
+    prevClass:'prev-vaporwave',
+    prompt:'Create a vaporwave aesthetic: deep purple backgrounds (#1a0533) with vibrant purple-to-pink gradient accents (#7b2ff7 to #f72f7b). Add a retro perspective grid floor at the bottom of hero sections. Use pastel neon — lavender, coral, sky blue — in typography and accents. Chrome-effect or gradient display text. Mix pixelated retro motifs alongside smooth gradient panels. Typography: bold italic display or chunky 80s-inspired type. The interface evokes early 90s digital nostalgia and Outrun aesthetics.'
+  },
+  {
+    id:'claymorphism', name:'Claymorphism', cat:'Colorful',
+    tagline:'3D clay objects, bright pastels, thick shadows',
+    tags:['3d','clay','pastel','rounded','playful'],
+    prevClass:'prev-claymorphism',
+    prompt:'Design with claymorphism: UI elements look like smooth, inflated 3D clay objects. Use bright saturated pastels (violet, coral, lime, sky), thick multi-layered colored drop shadows with no blur (offset 4–6px in a darker version of the element color), very rounded corners (border-radius: 24–32px), and a subtle inner highlight at the top edge suggesting a light source above. Backgrounds are warm off-white or solid bright pastels. Everything feels dimensional, tactile, and joyfully toy-like.'
+  },
+  {
+    id:'botanical', name:'Botanical', cat:'Dark',
+    tagline:'Forest greens, organic textures, nature-grounded',
+    tags:['nature','green','organic','earthy','serif'],
+    prevClass:'prev-botanical',
+    prompt:'Design a botanical/nature-inspired interface: deep forest green (#1a3a2a) and sage (#4a7c59) for structural elements, warm cream (#f5f0e8) for content surfaces. Use illustrated leaf or botanical motifs as decorative accents. Typography: an elegant humanist serif for headings, clean sans for body. Texture: subtle paper grain or linen overlay on backgrounds. Color palette is earthy — greens, browns, creams, no bright synthetics. The interface should feel like a premium plant atelier or nature journal — grounded and serene.'
+  },
+  {
+    id:'y2k', name:'Y2K / Retro Web', cat:'Dark',
+    tagline:'Hot pink, lime green, early internet energy',
+    tags:['retro','y2k','neon','2000s','pixel'],
+    prevClass:'prev-y2k',
+    prompt:'Design with early 2000s Y2K internet aesthetics: hot pink (#ff0066), electric blue (#0066ff), and lime green (#00ff66) on near-black backgrounds. Use beveled 3D button effects with strong highlight/shadow insets, thin rainbow gradient borders, star and sparkle decorations, and pixel-style icon accents. Typography mixes bold system fonts with colorful rainbow-gradient text effects. The interface should feel like it was lovingly crafted in Paint Shop Pro for a 2001 GeoCities page — nostalgic, vibrant, and delightfully chaotic.'
+  },
+  {
+    id:'academia', name:'Academia', cat:'Light',
+    tagline:'Parchment warmth, serif gravitas, scholarly elegance',
+    tags:['warm','serif','vintage','book','scholarly'],
+    prevClass:'prev-academia',
+    prompt:'Apply dark academia aesthetic: warm cream (#f5efe0) and aged parchment backgrounds, deep brown (#3d1c02) and burgundy (#8b1a1a) as primary text and accent colors. Use elegant serif typefaces (Playfair Display, EB Garamond) for headings at generous sizes. Add subtle paper grain texture overlays. Decorative elements: thin ornamental rules, small fleurons or typographic ornaments, drop caps on key paragraphs. The interface should evoke old universities, leather-bound tomes, candlelit reading rooms, and centuries of accumulated knowledge.'
+  },
+  {
+    id:'industrial', name:'Industrial', cat:'Dark',
+    tagline:'Raw metal, rust accents, factory-floor aesthetic',
+    tags:['dark','metal','texture','bold','raw'],
+    prevClass:'prev-industrial',
+    prompt:'Design with raw industrial aesthetic: dark charcoal (#1a1a1a) and concrete gray backgrounds, rust orange (#c2440e) and warning yellow (#f5c518) as accent colors. Use condensed uppercase sans-serif typography throughout. Structural elements reference industrial materials — exposed grid lines, rivet-inspired dot motifs, steel panel effects with subtle linear gradients. Cards feel like fabricated steel panels. The interface evokes factory floor HMI systems, urban loft environments, and the honest beauty of raw functional design.'
+  },
+  {
+    id:'sketch', name:'Sketch / Wireframe', cat:'Light',
+    tagline:'Hand-drawn lines, imperfect geometry, paper prototypes',
+    tags:['wireframe','hand-drawn','rough','paper','minimal'],
+    prevClass:'prev-sketch',
+    prompt:'Design with a hand-drawn sketch aesthetic: off-white (#fafaf5) background with UI elements rendered in slightly imperfect black strokes suggesting hand-drawn boundaries. Rectangles have subtly wobbly edges; shadows are hatching-style parallel lines rather than blurs; fills use diagonal line patterns or light watercolor-wash colors. Use a handwriting or monospace font. Image placeholders show the classic diagonal cross. The interface looks like a designer\'s lo-fi paper prototype digitized — unfinished, exploratory, and honest about its early-concept nature.'
+  },
+  {
+    id:'maximalism', name:'Maximalism', cat:'Colorful',
+    tagline:'Bold color stacking, mixed patterns, fearlessly busy',
+    tags:['colorful','bold','pattern','rich','expressive'],
+    prevClass:'prev-maximalism',
+    prompt:'Design with maximalism: embrace visual abundance. Layer multiple high-contrast colors simultaneously, mix patterns (polka dots with stripes with florals), use oversized decorative elements and rich jewel tones alongside bright accents. Dense layouts where every space contains texture, type, or color. Mix serif and display typefaces at varied scales within the same composition. Gold and deep jewel tones anchor the palette. The result should feel lush, opulent, celebratory, and fearlessly anti-minimalist — more is more.'
+  },
+  {
+    id:'organic', name:'Organic / Blob', cat:'Light',
+    tagline:'Flowing blob shapes, warm earth tones, handcrafted feel',
+    tags:['blob','earth','warm','flowing','natural'],
+    prevClass:'prev-organic',
+    prompt:'Use organic, biomorphic design language: blob-shaped backgrounds and UI containers with irregular rounded curves (CSS clip-path or SVG blobs instead of rectangles). Earthy color palette: warm terracotta (#c4714a), sage green (#8fa87a), sandy cream (#f2e8d9), muted clay (#d4956a). Typography uses a humanist serif or rounded sans-serif. Sections flow into each other through overlapping blob shapes rather than hard horizontal rules. The interface feels warm, hand-crafted, and connected to natural materials.'
+  },
+  {
+    id:'enterprise', name:'Enterprise / Corporate', cat:'Light',
+    tagline:'Structured blue system, tables, professional trust',
+    tags:['corporate','blue','clean','data','professional'],
+    prevClass:'prev-enterprise',
+    prompt:'Design a professional enterprise SaaS interface: clean white (#ffffff) backgrounds with structured blue (#1e40af) and neutral gray (#6b7280) color system. Use Inter or Roboto in precise typographic hierarchy. Rigid 8pt grid, clear visual hierarchy — large data tables with alternating row stripes, left sidebar navigation with icon+label items, compact top header bar, breadcrumb trails. Conservative color use: blue for primary CTAs, gray for structure, green/red for status only. The interface should convey reliability, scale, and institutional trust without flair.'
+  },
+  {
+    id:'web3', name:'Web3 / Crypto', cat:'Dark',
+    tagline:'Dark deep-space, purple glows, DeFi energy',
+    tags:['dark','gradient','glow','crypto','premium'],
+    prevClass:'prev-web3',
+    prompt:'Design a Web3/DeFi interface: deep dark blue-black (#050520) base, luminous purple (#8b5cf6) and electric teal (#06b6d4) as gradient accent colors. Use glowing border effects (box-shadow with color), gradient text headings (-webkit-background-clip: text), and translucent panel overlays with subtle noise texture. Charts and data visualizations use the purple-teal gradient scheme. Typography is clean and modern — Inter or Space Grotesk. The interface should feel like a premium on-chain application: dark, cutting-edge, and built for serious operators.'
+  },
+  {
+    id:'playful', name:'Playful Geometric', cat:'Colorful',
+    tagline:'Bold shapes, primary colors, joyful rounded forms',
+    tags:['playful','geometric','yellow','rounded','fun'],
+    prevClass:'prev-playful',
+    prompt:'Create a playful, geometric-forward interface: primary shapes (circles, rounded squares, triangles) in bold yellow (#ffde00), coral (#ff6b6b), and teal (#4ecdc4) on white. Use geometric shapes as decorative background elements and section dividers. Rounded corners on everything (border-radius: 16–24px). Bold black outlines on interactive elements for a hand-drawn comic feel. Typography: a friendly rounded sans-serif like Nunito or Poppins at generous weight. The interface feels like a creative educational product or consumer startup — approachable, energetic, and joyful.'
+  },
+  {
+    id:'boldtype', name:'Bold Typography', cat:'Minimal',
+    tagline:'Oversized headlines, type as structure, graphic power',
+    tags:['typography','editorial','black-white','graphic','statement'],
+    prevClass:'prev-boldtype',
+    prompt:'Make typography the primary structural and visual element: use oversized display type at 120–200px that intentionally bleeds off screen edges, extreme weight contrast between headline (Black 900) and body (Regular 400). Black and white base palette with a single electric accent color (red or neon green). The grid IS the text — headlines define columns, body text fills the negative spaces between them. No decorative imagery — every visual element is typographic. The interface feels like a graphic design manifesto: type-forward, confident, and compositionally bold.'
+  },
+  {
+    id:'swiss', name:'Swiss International', cat:'Minimal',
+    tagline:'Helvetica grid, disciplined whitespace, functional purity',
+    tags:['grid','helvetica','minimal','red','functional'],
+    prevClass:'prev-swiss',
+    prompt:'Apply Swiss International Typographic Style principles: rigorous modular grid system, Helvetica Neue or Aktiv Grotesk throughout, generous disciplined whitespace, flush-left ragged-right text alignment. Use only red (#dc2626) and black on white — no other colors, no gradients. Hierarchy through size, weight, and spatial position alone. No decorative elements whatsoever — only functional structure. Horizontal rules are structural, not decorative. The interface should feel like a 1960s Armin Hofmann poster adapted for digital — timeless, rational, and effortlessly clear.'
+  },
+  {
+    id:'artnouveau', name:'Art Nouveau', cat:'Dark',
+    tagline:'Flowing vines, gold ornaments, Mucha-inspired elegance',
+    tags:['ornate','gold','green','flowing','vintage'],
+    prevClass:'prev-artnouveau',
+    prompt:'Design with Art Nouveau aesthetics: flowing organic line-work, stylized natural motifs (lilies, vines, peacock feathers, flowing hair), and rich jewel tones — forest green (#2d5a27), antique gold (#c9a84c), and deep purple (#4a1942). Use ornate display serif or decorative fonts. Borders and dividers feature flowing vine or floral SVG patterns. Every UI frame has an organic quality — panels arch and curve at their edges rather than using hard corners. The interface evokes Alphonse Mucha poster art, Tiffany stained glass, and the ornate end of 1890s design.'
+  },
+  {
+    id:'memphis', name:'Memphis Design', cat:'Colorful',
+    tagline:'80s squiggles, clashing geometry, postmodern chaos',
+    tags:['80s','geometric','pattern','colorful','postmodern'],
+    prevClass:'prev-memphis',
+    prompt:'Apply Memphis design movement aesthetics (Milan, 1981–87): geometric shapes including squiggles, zigzags, dots, triangles, and checkerboard patterns in clashing primaries — hot pink (#ff006e), electric blue (#3a86ff), sunflower yellow (#ffbe0b) — on white. Surfaces are covered in pattern mixing: polka dots beside stripes beside solid primaries. Asymmetric layouts, no traditional hierarchy. Sans-serif typography in bold primary colors. The interface should feel like a 1987 Italian postmodern design poster — irreverent, graphic, and delightfully excessive.'
+  },
+  {
+    id:'neonnoir', name:'Neon Noir', cat:'Dark',
+    tagline:'Rain-slicked streets, neon glow, atmospheric darkness',
+    tags:['neon','dark','glow','atmospheric','noir'],
+    prevClass:'prev-neonnoir',
+    prompt:'Design a neon noir interface: near-pure black (#080808) backgrounds, neon magenta (#ff0090) and electric green (#39ff14) as the only accent colors. Apply strong neon glow effects via text-shadow and box-shadow on key elements. Use subtle grain/noise texture overlays on dark surfaces. Typography is a clean geometric sans at standard weight — the darkness carries the drama, not the type. The interface feels like standing in a rain-soaked alley at midnight looking at neon reflections on wet pavement. Inspirations: Blade Runner, Drive, Sin City.'
+  },
+  {
+    id:'softpastel', name:'Soft Pastel', cat:'Light',
+    tagline:'Dreamy lavender and mint, gentle depth, wellness calm',
+    tags:['pastel','soft','gentle','rounded','feminine'],
+    prevClass:'prev-softpastel',
+    prompt:'Design with soft pastel aesthetics: very light lavender (#f0eeff), blush pink (#ffe4ef), and mint (#e4fff9) as background tones, with pastel violet and rose as accent colors. Round every edge (border-radius: 16–24px) — no sharp corners anywhere. Box shadows are soft, colorful, and low-opacity (e.g., 0 8px 24px rgba(196,181,253,0.25)). Use a light rounded sans-serif (Nunito, DM Sans). Illustrated or emoji-style iconography. The interface feels airy, gentle, approachable — appropriate for a wellness app, stationery brand, or a creative portfolio that refuses to feel corporate.'
+  },
+  {
+    id:'editorial', name:'Editorial / Magazine', cat:'Minimal',
+    tagline:'Print-to-digital, strong hierarchy, visual journalism',
+    tags:['editorial','magazine','print','hierarchy','type'],
+    prevClass:'prev-editorial',
+    prompt:'Design as a premium digital magazine: strong typographic hierarchy using condensed display serif headlines (Freight Display, Canela) paired with clean body text. Black, white, and one editorial accent color (deep red or ink navy). Full-bleed image areas alternating with text column grids. Horizontal rules define sections, pull quotes interrupt the text flow, running headers track the reader. The layout should feel like a premium print publication adapted for the web — Vogue, Monocle, Bloomberg Businessweek, or The New Yorker in digital form.'
+  },
+  {
+    id:'bauhaus', name:'Bauhaus', cat:'Colorful',
+    tagline:'Primary geometry, Futura type, functional beauty',
+    tags:['geometric','primary-colors','futura','functional','classic'],
+    prevClass:'prev-bauhaus',
+    prompt:'Apply Bauhaus design principles strictly: compositions use only basic geometric forms — circles, rectangles, triangles. Colors are strictly limited to the three primaries — red (#e63329), yellow (#f5c518), blue (#2557a7) — plus black and white. No other colors allowed. Typography uses a geometric sans-serif (Futura, Bauhaus 93). Every element earns its place through function — ornament is crime. The interface should feel like a 1923 Herbert Bayer poster or Marcel Breuer chair translated into UI — pure, rational, and timeless in its geometric simplicity.'
+  },
+  {
+    id:'japmin', name:'Japanese Minimalism', cat:'Minimal',
+    tagline:'Ma (negative space), ink strokes, meditative restraint',
+    tags:['minimal','white','japanese','zen','space'],
+    prevClass:'prev-japmin',
+    prompt:'Design with Japanese minimalist aesthetics inspired by the concept of ma (間 — negative space as active element). Use abundant white space as a primary design material, not empty space. Restrained palette: white, light warm gray (#f5f5f0), ink black (#1a1a1a), with one single muted accent — deep indigo (#1e3a5f) or stone gray. Subtle paper texture on large surfaces. Typography uses a clean humanist serif for headings and thin-weight sans for body. Single ink brushstroke or geometric mon motif as the only decoration. The interface contemplates and breathes.'
+  },
+  {
+    id:'aurora', name:'Aurora / Gradient', cat:'Dark',
+    tagline:'Northern lights, cosmic meshes, ethereal color bands',
+    tags:['gradient','dark','green','purple','cosmic'],
+    prevClass:'prev-aurora',
+    prompt:'Design with aurora borealis-inspired gradient aesthetics: very deep dark backgrounds (#060612) with flowing, luminous color bands in teal (#00c896), deep green, indigo (#6432ff), and electric blue. Use CSS gradient meshes or multi-stop radial gradients layered to simulate the aurora effect — soft luminous bands that feel alive. UI elements float over the gradient with slight frosted-glass blur. Typography in crisp white. The interface feels cosmic, ethereal, and otherworldly — like standing in Iceland watching lights dance across a starfield.'
+  },
+  {
+    id:'mono', name:'Monochromatic Blue', cat:'Light',
+    tagline:'One hue, infinite depth — every shade of blue',
+    tags:['monochrome','blue','systematic','clean','focused'],
+    prevClass:'prev-mono',
+    prompt:'Design using a strict single-hue monochromatic blue system: one base hue (royal blue #2563eb) explored through all its tints (mixed with white) and shades (mixed with black). Navigation uses the darkest shade; backgrounds the lightest 10% tint; interactive elements the pure base; borders mid-tones. Absolutely no warm or cool shifts — no greens, no purples. Typography uses dark navy for headings and medium blue for body. This demonstrates that one fully-explored hue contains enough visual richness to carry a complete, sophisticated interface.'
+  },
+  {
+    id:'skeu', name:'Skeuomorphism', cat:'Light',
+    tagline:'Real-world textures, physical materials, touchable depth',
+    tags:['realistic','texture','3d','material','classic'],
+    prevClass:'prev-skeu',
+    prompt:'Design with skeuomorphic realism: UI elements mimic physical real-world materials and objects. Buttons have beveled emboss with specular highlights following a top-left light source. Backgrounds use leather, wood grain, or brushed metal CSS textures. Form inputs look like recessed physical fields. Sliders resemble physical faders with metal screws. All shadows follow a consistent light source (top-left at 45°). The richness comes from material simulation — grain, gloss, depth. The interface should feel like something you can physically touch — honest, textured, and materially present.'
+  },
+  {
+    id:'scifi', name:'Futuristic / Sci-Fi HUD', cat:'Dark',
+    tagline:'Holographic HUD, grid lines, spaceship instrumentation',
+    tags:['hud','space','grid','dark','blue'],
+    prevClass:'prev-scifi',
+    prompt:'Design a futuristic HUD (heads-up display) interface: near-black space backgrounds (#020209), bright electric blue (#00d4ff) as the primary accent for all structural and data elements. Subtle blueprint grid overlay on all surfaces. Corner bracket motifs frame every panel (top-left and bottom-right corners only, no full borders). Data visualizations — ring charts, waveforms, status bars — feel like ship instruments. Typography uses a clean techy sans-serif with wide letter-spacing. The interface feels like JARVIS, a spaceship bridge, or a holographic tactical display.'
+  },
+  {
+    id:'artdeco', name:'Art Deco', cat:'Dark',
+    tagline:'Chrysler gold, geometric glamour, 1920s opulence',
+    tags:['gold','geometric','luxury','vintage','glamour'],
+    prevClass:'prev-artdeco',
+    prompt:'Design with Art Deco elegance: rich black (#111) and deep navy (#0d1225) backgrounds with antique gold (#c9a132) and ivory (#f5f0e0) as accent colors. Decorative motifs reference Art Deco architecture — chevron patterns, sunburst radiating lines, stepped geometric borders, and stylized fan shapes. Use a condensed geometric serif or display typeface. Gold gradient rules separate sections. Every panel and card has geometric corner embellishments. The interface should feel like the Chrysler Building lobby, a 1927 ocean liner dining room, or a Jazz Age speakeasy — opulent, architectural, and timeless.'
+  }
+];
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DESIGN STYLES RENDERING
+   ══════════════════════════════════════════════════════════════════════════ */
+let dsSearch = '';
+let dsCat = 'all';
+
+function buildPreviewHTML(cls) {
+  return `<div class="ds-preview ${cls}">
+    <div class="ds-mini-nav">
+      <div class="ds-mini-dot"></div>
+      <div class="ds-mini-dot"></div>
+      <div class="ds-mini-dot"></div>
+      <div class="ds-mini-bar"></div>
+    </div>
+    <div class="ds-mini-body">
+      <div class="ds-mini-row">
+        <div class="ds-mini-col">
+          <div class="ds-mini-h xl"></div>
+          <div class="ds-mini-p"></div>
+          <div class="ds-mini-p" style="width:75%"></div>
+          <div class="ds-mini-btn"></div>
+        </div>
+        <div class="ds-mini-card ds-mini-col">
+          <div class="ds-mini-h"></div>
+          <div class="ds-mini-p"></div>
+          <div class="ds-mini-p" style="width:60%"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDsGrid() {
+  const q = dsSearch.toLowerCase().trim();
+  const filtered = STYLES.filter(s => {
+    if (dsCat !== 'all' && s.cat !== dsCat) return false;
+    if (q) {
+      const hay = `${s.name} ${s.tagline} ${s.tags.join(' ')}`.toLowerCase();
+      return q.split(/\s+/).every(w => hay.includes(w));
+    }
+    return true;
+  });
+
+  document.getElementById('dsCount').textContent = filtered.length;
+
+  const grid = document.getElementById('dsGrid');
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;background:#f9fafb;border-radius:12px"><div class="empty-icon">🔍</div><h3 style="color:#374151">No styles found</h3><p>Try a different search or category</p></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(s => `
+<div class="ds-card" data-sid="${s.id}">
+  ${buildPreviewHTML(s.prevClass)}
+  <div class="ds-card-meta">
+    <div class="ds-card-name">${s.name}</div>
+    <div class="ds-card-desc">${s.tagline}</div>
+    <div class="ds-card-footer">
+      <span class="ds-tag">${s.cat}</span>
+      <span class="ds-copy-hint">Click to copy →</span>
+    </div>
+  </div>
+</div>`).join('');
+}
+
+/* ── Card click → open modal ─────────────────────────────────────────── */
+document.getElementById('dsGrid').addEventListener('click', e => {
+  const card = e.target.closest('[data-sid]');
+  if (!card) return;
+  const s = STYLES.find(x => x.id === card.dataset.sid);
+  if (!s) return;
+  openModal(s);
+});
+
+function openModal(s) {
+  document.getElementById('modalPreview').innerHTML = buildPreviewHTML(s.prevClass).replace('class="ds-preview', 'class="');
+  document.getElementById('modalTitle').textContent = s.name;
+  document.getElementById('modalTagline').textContent = s.tagline;
+  document.getElementById('modalPrompt').textContent = s.prompt;
+  document.getElementById('modalTags').innerHTML = s.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+  document.getElementById('modalCopyBtn').textContent = 'Copy Prompt';
+  document.getElementById('modalCopyBtn').classList.remove('copied');
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+document.getElementById('modalCopyBtn').addEventListener('click', () => {
+  const btn = document.getElementById('modalCopyBtn');
+  const text = document.getElementById('modalPrompt').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 2000);
+  });
+});
+
+/* ── DS search + filter ──────────────────────────────────────────────── */
+document.getElementById('dsSearch').addEventListener('input', e => {
+  dsSearch = e.target.value;
+  renderDsGrid();
+});
+
+document.getElementById('dsCategoryBtns').addEventListener('click', e => {
+  const btn = e.target.closest('[data-dscat]');
+  if (!btn) return;
+  dsCat = btn.dataset.dscat;
+  document.querySelectorAll('[data-dscat]').forEach(b => b.classList.toggle('active', b.dataset.dscat === dsCat));
+  renderDsGrid();
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PROMPTS LIBRARY (Tab 1 — unchanged logic)
+   ══════════════════════════════════════════════════════════════════════════ */
+const state = { prompts: [], search: '', category: 'all', source: 'all', difficulty: 'all', tag: null };
+
 async function loadData() {
   try {
     const res = await fetch('prompts.json');
@@ -471,46 +1210,29 @@ async function loadData() {
     render();
   } catch (e) {
     document.getElementById('grid').innerHTML =
-      '<div class="empty"><div class="empty-icon">⚠️</div><h3>Could not load prompts.json</h3><p>Open this file via a local server (e.g. Live Server in VS Code)</p></div>';
+      '<div class="empty"><div class="empty-icon">⚠️</div><h3>Could not load prompts.json</h3><p>Open via a local server (e.g. Live Server in VS Code)</p></div>';
   }
 }
 
-// ─── Tag cloud ────────────────────────────────────────────────────────────────
-const POPULAR_TAGS = [
-  'landing-page','saas','dark-mode','hero','glassmorphism','neumorphism','brutalism',
-  'responsive','mobile','dashboard','e-commerce','component','typography','animation',
-  'accessibility','minimal','grid','card','form','navigation','fintech','startup',
-  'portfolio','design-system','data-display','color-palette','filter','table',
-  'modal','sidebar','microinteraction','illustration','gradient','chart',
-];
+const POPULAR_TAGS = ['landing-page','saas','dark-mode','hero','glassmorphism','neumorphism','brutalism','responsive','mobile','dashboard','e-commerce','component','typography','animation','accessibility','minimal','grid','card','form','navigation','fintech','startup','portfolio','design-system','data-display','color-palette','filter','table','modal','sidebar','microinteraction','illustration','gradient','chart'];
 
 function buildTagCloud() {
   const allTags = new Set();
   state.prompts.forEach(p => p.tags.forEach(t => allTags.add(t)));
   const popular = POPULAR_TAGS.filter(t => allTags.has(t));
   const rest = [...allTags].filter(t => !popular.includes(t)).sort();
-  const tags = [...popular, ...rest];
   const cloud = document.getElementById('tagCloud');
-  cloud.innerHTML = tags.map(t =>
-    `<button class="tag-pill" data-tag="${t}">${t}</button>`
-  ).join('');
+  cloud.innerHTML = [...popular, ...rest].map(t => `<button class="tag-pill" data-tag="${t}">${t}</button>`).join('');
   cloud.addEventListener('click', e => {
     const btn = e.target.closest('.tag-pill');
     if (!btn) return;
     const tag = btn.dataset.tag;
-    if (state.tag === tag) {
-      state.tag = null;
-      btn.classList.remove('active');
-    } else {
-      state.tag = tag;
-      cloud.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
+    if (state.tag === tag) { state.tag = null; btn.classList.remove('active'); }
+    else { state.tag = tag; cloud.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
     render();
   });
 }
 
-// ─── Filter + render ──────────────────────────────────────────────────────────
 function filter() {
   const q = state.search.toLowerCase().trim();
   return state.prompts.filter(p => {
@@ -521,43 +1243,29 @@ function filter() {
     if (state.tag && !p.tags.includes(state.tag)) return false;
     if (q) {
       const hay = `${p.title} ${p.body} ${p.tags.join(' ')} ${p.category}`.toLowerCase();
-      if (!q.split(/\s+/).every(word => hay.includes(word))) return false;
+      if (!q.split(/\s+/).every(w => hay.includes(w))) return false;
     }
     return true;
   });
 }
 
-function sourceBadgeClass(source) {
-  return source.includes('tisatech') ? 'badge-source-tt' : 'badge-source-dp';
-}
-function sourceLabel(source) {
-  return source.includes('tisatech') ? 'tisatech' : 'designprompts';
-}
-
 function renderCard(p) {
   const diffClass = `badge-${p.difficulty}`;
-  const srcClass = sourceBadgeClass(p.source);
-  const srcLabel = sourceLabel(p.source);
-  const tags = p.tags.map(t =>
-    `<span class="tag" data-tag="${t}">${t}</span>`
-  ).join('');
+  const srcClass = p.source.includes('tisatech') ? 'badge-source-tt' : 'badge-source-dp';
+  const srcLabel = p.source.includes('tisatech') ? 'tisatech' : 'designprompts';
+  const tags = p.tags.map(t => `<span class="tag" data-tag="${t}">${t}</span>`).join('');
   return `
 <div class="card" data-id="${p.id}">
   <div class="card-header">
     <div class="card-title">${escHtml(p.title)}</div>
-    <div class="badges">
-      <span class="badge ${srcClass}">${srcLabel}</span>
-      <span class="badge ${diffClass}">${p.difficulty}</span>
-    </div>
+    <div class="badges"><span class="badge ${srcClass}">${srcLabel}</span><span class="badge ${diffClass}">${p.difficulty}</span></div>
   </div>
   <div class="card-body collapsed" id="body-${p.id}">${escHtml(p.body)}</div>
   <button class="expand-btn" data-expand="${p.id}">Show more ↓</button>
   <div class="card-tags">${tags}</div>
   <div class="card-footer">
     <span class="card-id">${p.id}</span>
-    <button class="copy-btn" data-copy="${p.id}">
-      <span>Copy</span>
-    </button>
+    <button class="copy-btn" data-copy="${p.id}"><span>Copy</span></button>
   </div>
 </div>`;
 }
@@ -566,108 +1274,67 @@ function render() {
   const results = filter();
   const grid = document.getElementById('grid');
   document.getElementById('resultCount').textContent = results.length;
-
-  // Clear btn
   const hasFilter = state.search || state.category !== 'all' || state.source !== 'all' || state.difficulty !== 'all' || state.tag;
   document.getElementById('clearBtn').style.display = hasFilter ? 'inline' : 'none';
-
   if (results.length === 0) {
-    grid.innerHTML = `<div class="empty">
-      <div class="empty-icon">🔍</div>
-      <h3>No prompts found</h3>
-      <p>Try a different search term or clear your filters</p>
-    </div>`;
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><h3>No prompts found</h3><p>Try a different search term or clear your filters</p></div>';
     return;
   }
   grid.innerHTML = results.map(renderCard).join('');
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ─── Event delegation ─────────────────────────────────────────────────────────
 document.getElementById('grid').addEventListener('click', e => {
-  // Copy button
   const copyBtn = e.target.closest('[data-copy]');
   if (copyBtn) {
-    const id = copyBtn.dataset.copy;
-    const prompt = state.prompts.find(p => p.id === id);
-    if (prompt) {
-      navigator.clipboard.writeText(prompt.body).then(() => {
-        copyBtn.classList.add('copied');
-        copyBtn.querySelector('span').textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.classList.remove('copied');
-          copyBtn.querySelector('span').textContent = 'Copy';
-        }, 2000);
-      });
-    }
+    const p = state.prompts.find(x => x.id === copyBtn.dataset.copy);
+    if (p) navigator.clipboard.writeText(p.body).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.querySelector('span').textContent = 'Copied!';
+      setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.querySelector('span').textContent = 'Copy'; }, 2000);
+    });
     return;
   }
-  // Expand button
   const expandBtn = e.target.closest('[data-expand]');
   if (expandBtn) {
     const id = expandBtn.dataset.expand;
     const bodyEl = document.getElementById(`body-${id}`);
-    if (bodyEl.classList.contains('collapsed')) {
-      bodyEl.classList.remove('collapsed');
-      expandBtn.textContent = 'Show less ↑';
-    } else {
-      bodyEl.classList.add('collapsed');
-      expandBtn.textContent = 'Show more ↓';
-    }
+    const collapsed = bodyEl.classList.toggle('collapsed');
+    expandBtn.textContent = collapsed ? 'Show more ↓' : 'Show less ↑';
     return;
   }
-  // Tag click inside card
   const tagEl = e.target.closest('.tag');
   if (tagEl) {
-    const tag = tagEl.dataset.tag;
-    state.tag = tag;
-    document.querySelectorAll('.tag-pill').forEach(b => {
-      b.classList.toggle('active', b.dataset.tag === tag);
-    });
+    state.tag = tagEl.dataset.tag;
+    document.querySelectorAll('.tag-pill').forEach(b => b.classList.toggle('active', b.dataset.tag === state.tag));
     render();
   }
 });
 
-// ─── Filter chips ─────────────────────────────────────────────────────────────
 document.querySelectorAll('[data-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
     const key = btn.dataset.filter;
     const val = btn.dataset.value;
     state[key] = val;
-    // Update active chips in this row
-    document.querySelectorAll(`[data-filter="${key}"]`).forEach(b => {
-      b.classList.toggle('active', b.dataset.value === val);
-    });
+    document.querySelectorAll(`[data-filter="${key}"]`).forEach(b => b.classList.toggle('active', b.dataset.value === val));
     render();
   });
 });
 
-// ─── Search ───────────────────────────────────────────────────────────────────
-document.getElementById('searchInput').addEventListener('input', e => {
-  state.search = e.target.value;
-  render();
-});
+document.getElementById('searchInput').addEventListener('input', e => { state.search = e.target.value; render(); });
 
-// ─── Clear ────────────────────────────────────────────────────────────────────
 document.getElementById('clearBtn').addEventListener('click', () => {
-  state.search = '';
-  state.category = 'all';
-  state.source = 'all';
-  state.difficulty = 'all';
-  state.tag = null;
+  state.search = ''; state.category = 'all'; state.source = 'all'; state.difficulty = 'all'; state.tag = null;
   document.getElementById('searchInput').value = '';
-  document.querySelectorAll('[data-filter]').forEach(b => {
-    b.classList.toggle('active', b.dataset.value === 'all');
-  });
+  document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.value === 'all'));
   document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
   render();
 });
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
+/* Boot */
 loadData();
+renderDsGrid();
 </script>
 </body>
 </html>
