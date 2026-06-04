@@ -603,7 +603,28 @@ header {
 .prev-artdeco .ds-mini-p  { background: rgba(201,161,50,.35); }
 .prev-artdeco .ds-mini-btn{ background: #c9a132; border-radius: 0; }
 
-/* 32 Flat Design */
+/* 32 Linear / Modern Dark */
+.prev-lineardark { background: #050506; }
+.prev-lineardark .ds-mini-nav { background: rgba(255,255,255,.03); border-bottom: 1px solid rgba(255,255,255,.06); }
+.prev-lineardark .ds-mini-dot { background: #5e6ad2; box-shadow: 0 0 6px #5e6ad266; }
+.prev-lineardark .ds-mini-bar { background: rgba(94,106,210,.3); }
+.prev-lineardark .ds-mini-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+.prev-lineardark .ds-mini-h  { background: linear-gradient(90deg,#fff,#a0a8d8); }
+.prev-lineardark .ds-mini-p  { background: rgba(255,255,255,.2); }
+.prev-lineardark .ds-mini-btn{ background: #5e6ad2; border-radius: 6px; }
+
+/* 33 Minimalist Modern */
+.prev-minimalmodern { background: #fafafa; }
+.prev-minimalmodern .ds-mini-nav { background: #fff; border-bottom: 1px solid #f0f0f0; }
+.prev-minimalmodern .ds-mini-dot { background: #1a1a1a; }
+.prev-minimalmodern .ds-mini-bar { background: #e8e8e8; }
+.prev-minimalmodern .ds-mini-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.prev-minimalmodern .ds-mini-h.xl{ background: #1a1a1a; height: 16px; }
+.prev-minimalmodern .ds-mini-h  { background: #444; }
+.prev-minimalmodern .ds-mini-p  { background: #ccc; }
+.prev-minimalmodern .ds-mini-btn{ background: #1a1a1a; border-radius: 8px; }
+
+/* 34 Flat Design */
 .prev-flatdesign { background: #f0f4f8; }
 .prev-flatdesign .ds-mini-nav { background: #3b82f6; }
 .prev-flatdesign .ds-mini-dot { background: rgba(255,255,255,.8); }
@@ -887,7 +908,7 @@ header {
   </div>
   <div class="header-stats">
     <div class="stat-item"><div class="num" id="totalCount">75</div><div class="label">Prompts</div></div>
-    <div class="stat-item"><div class="num">40</div><div class="label">Styles</div></div>
+    <div class="stat-item"><div class="num">42</div><div class="label">Styles</div></div>
     <div class="stat-item"><div class="num">2</div><div class="label">Sources</div></div>
   </div>
 </header>
@@ -959,10 +980,10 @@ header {
 
   <div class="ds-hero">
     <div class="ds-hero-badge">✦ AI-Powered Design Style Explorer</div>
-    <h2>Explore <span>40+ Design Styles</span><br>Rendered From the Same Data</h2>
+    <h2>Explore <span>42 Design Styles</span><br>With Full AI Prompts</h2>
     <p>Drop any prompt into your AI assistant to ship beautiful, consistent interfaces in minutes. One data model — infinite aesthetics.</p>
     <div class="ds-hero-meta">
-      <span class="ds-hero-stat"><strong>40</strong> unique styles</span>
+      <span class="ds-hero-stat"><strong>42</strong> unique styles</span>
       <span class="ds-hero-stat">·</span>
       <span class="ds-hero-stat"><strong>Click</strong> any card to view &amp; copy the prompt</span>
       <span class="ds-hero-stat">·</span>
@@ -1275,6 +1296,20 @@ const STYLES = [
     tags:['gold','geometric','luxury','vintage','glamour'],
     prevClass:'prev-artdeco',
     prompt:'Design with Art Deco elegance: rich black (#111) and deep navy (#0d1225) backgrounds with antique gold (#c9a132) and ivory (#f5f0e0) as accent colors. Decorative motifs reference Art Deco architecture — chevron patterns, sunburst radiating lines, stepped geometric borders, and stylized fan shapes. Use a condensed geometric serif or display typeface. Gold gradient rules separate sections. Every panel and card has geometric corner embellishments. The interface should feel like the Chrysler Building lobby, a 1927 ocean liner dining room, or a Jazz Age speakeasy — opulent, architectural, and timeless.'
+  },
+  {
+    id:'lineardark', name:'Linear / Modern Dark', cat:'Dark',
+    tagline:'Cinematic depth, indigo accents, premium software feel',
+    tags:['dark','indigo','premium','layered','cinematic'],
+    prevClass:'prev-lineardark',
+    prompt:'Design with Linear-inspired modern dark aesthetics: deep near-black backgrounds (#050506, #020203) with a single saturated indigo accent (#5E6AD2). Depth through translucent layering — cards at rgba(255,255,255,.04) with 1px rgba borders, multi-layer shadow stacking (border highlight + diffuse + ambient), mouse-tracking spotlight effects. Micro-interactions at 200-300ms expo-out easing. Gradient text on headlines via background-clip. Asymmetric bento grid layouts. The interface feels like premium software — Linear, Vercel, Raycast.'
+  },
+  {
+    id:'minimalmodern', name:'Minimalist Modern', cat:'Minimal',
+    tagline:'Restraint in quantity, confidence in execution',
+    tags:['minimal','clean','modern','structured','bold'],
+    prevClass:'prev-minimalmodern',
+    prompt:'Design with minimalist modern principles: clean white (#fafafa) backgrounds, dark charcoal (#1a1a1a) text, disciplined negative space as a primary design material. Clarity through structure — tight typographic hierarchy, generous line-height, no decorative elements. Bold detail where it counts: a single oversized typographic element per section, confident sizing contrast between headlines and body. Interactions are purposeful: smooth 300ms ease-in-out transitions, subtle card lift on hover. The interface feels intentional — every element earns its place through function and expression.'
   },
   {
     id:'flatdesign', name:'Flat Design', cat:'Light',
@@ -1605,7 +1640,26 @@ document.getElementById('clearBtn').addEventListener('click', () => {
 
 /* Boot */
 loadData();
-renderDsGrid();
+
+// Load real prompts from design-styles-prompts.json and inject into STYLES array
+(async () => {
+  try {
+    const res = await fetch('design-styles-prompts.json');
+    const data = await res.json();
+    const map = data.prompts;
+    let updated = 0;
+    STYLES.forEach(s => {
+      if (map[s.id]) {
+        s.prompt = map[s.id];
+        updated++;
+      }
+    });
+    console.log(`Loaded real prompts for ${updated}/${STYLES.length} styles`);
+  } catch (e) {
+    console.warn('Could not load design-styles-prompts.json — using placeholder prompts. Open via local server.');
+  }
+  renderDsGrid();
+})();
 </script>
 </body>
 </html>
