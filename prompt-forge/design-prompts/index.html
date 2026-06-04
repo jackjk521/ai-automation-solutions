@@ -1088,14 +1088,14 @@ const STYLES = [
     prompt:'Design a minimal dark-mode interface: deep near-black background (#0d0d0d), with UI surfaces in dark gray (#1a1a1a, #262626). Typography is clean Inter or system sans-serif in white and muted gray (#888). Layout breathes — generous padding, ample line-height, no decorative elements. Use a single muted teal (#2dd4bf) accent sparingly for interactive states only. Every design decision should be justified by function. Remove every element that does not earn its place.'
   },
   {
-    id:'cyberpunk', name:'Cyberpunk', cat:'Dark',
+    id:'cyberpunk', name:'Cyberpunk', cat:'Futuristic',
     tagline:'Neon circuits, scanner lines, megacity UI',
     tags:['neon','dark','futuristic','cyan','glitch'],
     prevClass:'prev-cyberpunk',
     prompt:'Design a cyberpunk-themed UI: very dark base (#0a0a12), electric cyan (#00ffff) and hot magenta (#ff00a0) neon accents. Apply neon glow via text-shadow and box-shadow on key elements. Structural elements use thin glowing borders. Add subtle scanline or diagonal grid overlays as texture. Use a techy monospace or condensed sans-serif. Corner-bracket motifs frame important panels. The interface feels like a hacker terminal inside a rain-soaked neon megacity at 3am.'
   },
   {
-    id:'vaporwave', name:'Vaporwave', cat:'Dark',
+    id:'vaporwave', name:'Vaporwave', cat:'Retro',
     tagline:'Purple-pink gradients, retro grids, digital nostalgia',
     tags:['retro','gradient','purple','pink','80s'],
     prevClass:'prev-vaporwave',
@@ -1116,7 +1116,7 @@ const STYLES = [
     prompt:'Design a botanical/nature-inspired interface: deep forest green (#1a3a2a) and sage (#4a7c59) for structural elements, warm cream (#f5f0e8) for content surfaces. Use illustrated leaf or botanical motifs as decorative accents. Typography: an elegant humanist serif for headings, clean sans for body. Texture: subtle paper grain or linen overlay on backgrounds. Color palette is earthy — greens, browns, creams, no bright synthetics. The interface should feel like a premium plant atelier or nature journal — grounded and serene.'
   },
   {
-    id:'y2k', name:'Y2K / Retro Web', cat:'Dark',
+    id:'y2k', name:'Y2K / Retro Web', cat:'Retro',
     tagline:'Hot pink, lime green, early internet energy',
     tags:['retro','y2k','neon','2000s','pixel'],
     prevClass:'prev-y2k',
@@ -1165,7 +1165,7 @@ const STYLES = [
     prompt:'Design a professional enterprise SaaS interface: clean white (#ffffff) backgrounds with structured blue (#1e40af) and neutral gray (#6b7280) color system. Use Inter or Roboto in precise typographic hierarchy. Rigid 8pt grid, clear visual hierarchy — large data tables with alternating row stripes, left sidebar navigation with icon+label items, compact top header bar, breadcrumb trails. Conservative color use: blue for primary CTAs, gray for structure, green/red for status only. The interface should convey reliability, scale, and institutional trust without flair.'
   },
   {
-    id:'web3', name:'Web3 / Crypto', cat:'Dark',
+    id:'web3', name:'Web3 / Crypto', cat:'Futuristic',
     tagline:'Dark deep-space, purple glows, DeFi energy',
     tags:['dark','gradient','glow','crypto','premium'],
     prevClass:'prev-web3',
@@ -1193,14 +1193,14 @@ const STYLES = [
     prompt:'Apply Swiss International Typographic Style principles: rigorous modular grid system, Helvetica Neue or Aktiv Grotesk throughout, generous disciplined whitespace, flush-left ragged-right text alignment. Use only red (#dc2626) and black on white — no other colors, no gradients. Hierarchy through size, weight, and spatial position alone. No decorative elements whatsoever — only functional structure. Horizontal rules are structural, not decorative. The interface should feel like a 1960s Armin Hofmann poster adapted for digital — timeless, rational, and effortlessly clear.'
   },
   {
-    id:'artnouveau', name:'Art Nouveau', cat:'Dark',
+    id:'artnouveau', name:'Art Nouveau', cat:'Retro',
     tagline:'Flowing vines, gold ornaments, Mucha-inspired elegance',
     tags:['ornate','gold','green','flowing','vintage'],
     prevClass:'prev-artnouveau',
     prompt:'Design with Art Nouveau aesthetics: flowing organic line-work, stylized natural motifs (lilies, vines, peacock feathers, flowing hair), and rich jewel tones — forest green (#2d5a27), antique gold (#c9a84c), and deep purple (#4a1942). Use ornate display serif or decorative fonts. Borders and dividers feature flowing vine or floral SVG patterns. Every UI frame has an organic quality — panels arch and curve at their edges rather than using hard corners. The interface evokes Alphonse Mucha poster art, Tiffany stained glass, and the ornate end of 1890s design.'
   },
   {
-    id:'memphis', name:'Memphis Design', cat:'Colorful',
+    id:'memphis', name:'Memphis Design', cat:'Retro',
     tagline:'80s squiggles, clashing geometry, postmodern chaos',
     tags:['80s','geometric','pattern','colorful','postmodern'],
     prevClass:'prev-memphis',
@@ -1242,7 +1242,7 @@ const STYLES = [
     prompt:'Design with Japanese minimalist aesthetics inspired by the concept of ma (間 — negative space as active element). Use abundant white space as a primary design material, not empty space. Restrained palette: white, light warm gray (#f5f5f0), ink black (#1a1a1a), with one single muted accent — deep indigo (#1e3a5f) or stone gray. Subtle paper texture on large surfaces. Typography uses a clean humanist serif for headings and thin-weight sans for body. Single ink brushstroke or geometric mon motif as the only decoration. The interface contemplates and breathes.'
   },
   {
-    id:'aurora', name:'Aurora / Gradient', cat:'Dark',
+    id:'aurora', name:'Aurora / Gradient', cat:'Futuristic',
     tagline:'Northern lights, cosmic meshes, ethereal color bands',
     tags:['gradient','dark','green','purple','cosmic'],
     prevClass:'prev-aurora',
@@ -1263,14 +1263,14 @@ const STYLES = [
     prompt:'Design with skeuomorphic realism: UI elements mimic physical real-world materials and objects. Buttons have beveled emboss with specular highlights following a top-left light source. Backgrounds use leather, wood grain, or brushed metal CSS textures. Form inputs look like recessed physical fields. Sliders resemble physical faders with metal screws. All shadows follow a consistent light source (top-left at 45°). The richness comes from material simulation — grain, gloss, depth. The interface should feel like something you can physically touch — honest, textured, and materially present.'
   },
   {
-    id:'scifi', name:'Futuristic / Sci-Fi HUD', cat:'Dark',
+    id:'scifi', name:'Futuristic / Sci-Fi HUD', cat:'Futuristic',
     tagline:'Holographic HUD, grid lines, spaceship instrumentation',
     tags:['hud','space','grid','dark','blue'],
     prevClass:'prev-scifi',
     prompt:'Design a futuristic HUD (heads-up display) interface: near-black space backgrounds (#020209), bright electric blue (#00d4ff) as the primary accent for all structural and data elements. Subtle blueprint grid overlay on all surfaces. Corner bracket motifs frame every panel (top-left and bottom-right corners only, no full borders). Data visualizations — ring charts, waveforms, status bars — feel like ship instruments. Typography uses a clean techy sans-serif with wide letter-spacing. The interface feels like JARVIS, a spaceship bridge, or a holographic tactical display.'
   },
   {
-    id:'artdeco', name:'Art Deco', cat:'Dark',
+    id:'artdeco', name:'Art Deco', cat:'Retro',
     tagline:'Chrysler gold, geometric glamour, 1920s opulence',
     tags:['gold','geometric','luxury','vintage','glamour'],
     prevClass:'prev-artdeco',
@@ -1291,7 +1291,7 @@ const STYLES = [
     prompt:'Design an ultra-luxury brand interface: pure obsidian black (#0a0a0a) backgrounds, 22-karat gold (#c9a84c) as the sole accent color, never used as fill — only as lines, rules, and fine text. Generous whitespace; every element is given room to breathe. Typography uses a refined high-contrast display serif (Didot, Bodoni) for headings at generous tracking. No photography placeholders — use abstract gold geometric compositions. Interactions are understated: gold underlines appear on hover, transitions are slow and elegant (400ms ease). The interface should feel like a Chanel haute couture atelier or a Swiss watch maison.'
   },
   {
-    id:'terminalcli', name:'Terminal / CLI', cat:'Dark',
+    id:'terminalcli', name:'Terminal / CLI', cat:'Futuristic',
     tagline:'Green-on-black, monospace grids, command-line soul',
     tags:['terminal','green','monospace','hacker','dark'],
     prevClass:'prev-terminalcli',
@@ -1319,14 +1319,14 @@ const STYLES = [
     prompt:'Design with a humanist literary aesthetic: warm off-white (#faf7f2) backgrounds suggesting aged paper, dark walnut (#2c1810) text. Typography is the entire visual language — use a beautiful humanist serif (EB Garamond, Freight Text) for all headings and body text at generous leading (1.8). Decorative elements are purely typographic: pilcrow marks (¶), asterisms (⁂), em-dashes used liberally. Color is limited to warm amber (#8b6914) as a single accent. Margins are wide and generous. The interface should feel like an artisanal literary journal, an independent bookstore website, or a scholar\'s personal site — thoughtful, warm, and deeply typographic.'
   },
   {
-    id:'kinetic', name:'Kinetic / Motion', cat:'Dark',
+    id:'kinetic', name:'Kinetic / Motion', cat:'Futuristic',
     tagline:'Motion-first, animated gradients, living interfaces',
     tags:['animation','motion','gradient','dark','dynamic'],
     prevClass:'prev-kinetic',
     prompt:'Design a kinetic, motion-first interface: deep near-black background (#09090b), animated gradient accents in purple (#a855f7) and cyan (#06b6d4). Every interactive element has a meaningful motion response — cards slide, headings type-on, gradients shift. Background uses a slowly animating mesh gradient or aurora effect. Use CSS @keyframes for: gradient-shift on backgrounds, float on feature cards, shimmer on loading states. Typography is clean and modern (Inter). The interface feels alive and responsive — like a dashboard that breathes, a product that moves with the user rather than waiting to be clicked.'
   },
   {
-    id:'fluent2', name:'Fluent 2', cat:'Light',
+    id:'fluent2', name:'Fluent 2', cat:'Futuristic',
     tagline:'Mica material, acrylic blur, Microsoft design system',
     tags:['microsoft','acrylic','fluent','blur','clean'],
     prevClass:'prev-fluent2',
