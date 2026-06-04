@@ -1,0 +1,686 @@
+{
+  "meta": {
+    "total": 75,
+    "sources": ["designprompts.dev", "tisatech.in/blog/best-prompts-for-website-design"],
+    "generated": "2026-06-04",
+    "version": "1.0"
+  },
+  "prompts": [
+    {
+      "id": "dp-001",
+      "title": "Minimal SaaS Landing Page",
+      "body": "Create a minimal SaaS landing page with a dark hero section, bold sans-serif typography, a short headline under 8 words, social proof logos, a features grid with icons, and a single early-access email capture form. Use a neutral dark background with one accent color.",
+      "source": "designprompts.dev",
+      "category": "Landing Page",
+      "tags": ["landing-page", "saas", "minimal", "dark-mode", "hero", "email-capture", "startup"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-002",
+      "title": "Mobile Banking Dashboard",
+      "body": "Design a mobile banking app dashboard showing: account balance in large type, a horizontal spending category scroll, a recent transactions list with merchant icons and amounts, a bottom navigation bar with 4 tabs (Home, Cards, Payments, Profile). Use a clean white card layout with a brand color header.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "dashboard", "fintech", "banking", "cards", "navigation", "data-display"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-003",
+      "title": "UI Designer Portfolio",
+      "body": "Design a portfolio website for a UI designer with: a full-screen hero with name and tagline, a case study grid showing 4 projects with cover images and categories, a minimal about section with a photo and short bio, a skills list, and a contact section with a simple form. Typography: large serif headings, clean sans body.",
+      "source": "designprompts.dev",
+      "category": "Portfolio",
+      "tags": ["portfolio", "personal-brand", "case-studies", "contact-form", "serif-typography", "creative"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-004",
+      "title": "Fitness Tracker App",
+      "body": "Create a fitness tracking app UI with: a weekly workout streak calendar, an active workout timer screen with exercise list and rep counters, a progress chart for weight/reps over 30 days, and a goal-setting modal. Use bold typography, energetic accent color (neon green or orange), dark background.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "fitness", "health", "charts", "progress", "dark-mode", "gamification"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-005",
+      "title": "E-Commerce Product Page",
+      "body": "Design an e-commerce product detail page for a premium sneaker brand: large product image gallery on the left, size selector grid, color swatches, price with discount badge, Add to Cart CTA, a sticky bottom bar on mobile, and a reviews section with star ratings and filter tabs. Clean, modern, white background.",
+      "source": "designprompts.dev",
+      "category": "E-Commerce",
+      "tags": ["e-commerce", "product-page", "shopping", "gallery", "reviews", "mobile-responsive", "cta"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-006",
+      "title": "Admin Analytics Dashboard",
+      "body": "Build an analytics admin dashboard with: a sidebar nav with icons and labels, a top stats row (4 KPI cards with trend arrows), a large line chart for revenue over time, a recent orders table with status badges, and a right sidebar showing top products. Use a light gray background with white cards and blue accents.",
+      "source": "designprompts.dev",
+      "category": "Dashboard",
+      "tags": ["dashboard", "analytics", "admin", "charts", "data-table", "kpi", "sidebar", "saas"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-007",
+      "title": "Recipe App Card Grid",
+      "body": "Design a recipe discovery app with: a search bar with filter chips (cuisine, diet, time), a 2-column card grid showing recipe photo, name, cook time, difficulty badge, and a heart save button. Include a featured recipe hero at the top. Warm, food-photography-friendly color palette.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "food", "cards", "search", "filters", "grid-layout", "imagery"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-008",
+      "title": "Dark Mode Music Player",
+      "body": "Create a dark-mode music player app: full-screen album art with blurred background, song title and artist in white, a scrubber with elapsed/remaining time, playback controls (shuffle, prev, play/pause, next, repeat), a like button, and a lyrics scroll panel. Accent color matches album art dynamically.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "dark-mode", "music", "media-player", "glassmorphism", "dynamic-color"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-009",
+      "title": "Glassmorphism Pricing Page",
+      "body": "Design a SaaS pricing page using glassmorphism: frosted glass cards on a gradient background, 3 tiers (Free, Pro, Enterprise) with feature comparison checkmarks, a monthly/annual toggle that updates prices, a popular badge on the middle tier, and testimonial quotes below. Purple-to-blue gradient.",
+      "source": "designprompts.dev",
+      "category": "Landing Page",
+      "tags": ["pricing", "saas", "glassmorphism", "gradient", "comparison", "toggle", "testimonials"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-010",
+      "title": "Travel Booking Search",
+      "body": "Design a travel booking search interface: a hero with a search form (From, To, Dates, Passengers), results list showing flight cards (airline logo, times, stops, price, duration), filter sidebar (price range slider, airline checkboxes, stops filter), and a sort dropdown. Clean airline-industry aesthetic.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["travel", "search", "filters", "booking", "cards", "form", "results-list"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-011",
+      "title": "Onboarding Flow — 4 Screens",
+      "body": "Design a 4-screen mobile onboarding flow for a meditation app: (1) welcome splash with illustration, (2) goal selection with emoji tiles, (3) experience level picker, (4) notification permission request with a friendly illustration. Use soft pastel colors, rounded corners, and a progress indicator.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["onboarding", "mobile", "illustration", "wellness", "multi-step", "pastel", "ux-flow"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-012",
+      "title": "Real Estate Listing Card",
+      "body": "Design a real estate listing card component: property photo with a save icon overlay, price in bold, address below, a row of icons for beds/baths/sqft, a 'New Listing' badge, and an agent mini-avatar. The card should have a subtle shadow and hover lift. Design both list view and grid view variants.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["component", "card", "real-estate", "listing", "badge", "hover-state", "responsive"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-013",
+      "title": "Newsletter Signup Section",
+      "body": "Design a newsletter signup section for a tech blog: a centered layout with a headline ('Get insights every Tuesday'), a short 2-line description, an email input with an inline Subscribe button, a small note about spam-free promise and subscriber count social proof. Light and dark variants.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["newsletter", "email-capture", "cta", "component", "social-proof", "dark-mode", "blog"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-014",
+      "title": "Crypto Wallet Mobile UI",
+      "body": "Create a crypto wallet app: a home screen showing total portfolio value, 24h change percentage with a sparkline, a token list (name, logo, price, % change, amount held), send/receive buttons, and a transaction history tab. Use a dark background with neon accent colors and monospaced numbers.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "crypto", "fintech", "dark-mode", "charts", "portfolio", "web3"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-015",
+      "title": "Job Board Listing Page",
+      "body": "Design a job board listing page: search bar with location and keyword filters, job cards showing company logo, job title, company name, location, salary range, tags (remote, full-time, etc.), and time posted. Include a sidebar for advanced filters and a featured/pinned job at the top.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["job-board", "listing", "search", "filters", "cards", "tags", "recruitment"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-016",
+      "title": "Notification Center Dropdown",
+      "body": "Design a notification center dropdown component: a bell icon with unread count badge, a panel with tabs (All, Unread, Mentions), notification rows with avatar, message preview, timestamp, and a read/unread state. Include a 'Mark all as read' action and empty state illustration.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["component", "notifications", "dropdown", "badge", "empty-state", "tabs", "interaction"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-017",
+      "title": "Healthcare Patient Portal",
+      "body": "Design a healthcare patient portal dashboard: appointment list with doctor avatar, date/time, and a join/reschedule CTA, a medication tracker with pill schedule, lab results section with downloadable PDF links, and a messages inbox. Use calming blue-green tones, high accessibility contrast.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["healthcare", "dashboard", "portal", "accessibility", "appointments", "medical", "enterprise"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-018",
+      "title": "Brutalist Marketing Site",
+      "body": "Design a brutalist-style marketing website for a creative agency: raw grid layout with visible borders, bold uppercase sans-serif type, high-contrast black/white/yellow color scheme, overlapping elements, large numbers as decorative elements, and a deliberately rough, unpolished aesthetic.",
+      "source": "designprompts.dev",
+      "category": "Landing Page",
+      "tags": ["brutalism", "creative-agency", "bold-typography", "high-contrast", "experimental", "marketing"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-019",
+      "title": "Settings Page — Full UI",
+      "body": "Design a comprehensive settings page: a left sidebar with categories (Account, Privacy, Notifications, Appearance, Billing, Security), the main area showing toggle switches, dropdown selects, radio groups, a danger zone section, and save/cancel actions. Clean, functional, no decorative elements.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["settings", "form", "toggles", "sidebar", "accessibility", "functional", "saas"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-020",
+      "title": "Comment Thread Component",
+      "body": "Design a nested comment thread component: top-level comment with author avatar, username, timestamp, comment text, and action buttons (like, reply, share). Replies are indented with a vertical line connector. Include a reply input that expands inline. Show collapsed state for deep threads.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["component", "comments", "thread", "nested", "social", "interaction", "forum"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-021",
+      "title": "Neumorphic Calculator",
+      "body": "Design a neumorphic-style calculator app: soft extruded number buttons and operator keys on a light gray background using inner/outer shadows, a display panel showing current input and operation, and pressed states that invert the shadow direction. Subtle and tactile aesthetic.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["neumorphism", "calculator", "mobile", "soft-ui", "shadows", "tactile", "interaction"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-022",
+      "title": "SaaS Waitlist Hero",
+      "body": "Design a SaaS waitlist hero section: large centered headline with a gradient text effect, a 2-sentence description, a waitlist signup form (email + CTA button), a counter showing people already signed up ('Join 4,200 others'), and animated floating UI element mockups in the background.",
+      "source": "designprompts.dev",
+      "category": "Landing Page",
+      "tags": ["landing-page", "waitlist", "hero", "saas", "gradient-text", "social-proof", "animation"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-023",
+      "title": "Food Delivery Map View",
+      "body": "Design a food delivery app map view screen: a full-screen map with restaurant pin markers, a bottom sheet showing delivery time and restaurant info, a floating search bar at the top, filter pills (Cuisine, Rating, Price, Fastest), and a card carousel of nearby restaurants. Material You design language.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "maps", "food", "delivery", "bottom-sheet", "carousel", "location"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-024",
+      "title": "Design System Color Palette",
+      "body": "Create a design system color palette page: a primary color with 10 tonal shades (50–900), secondary and neutral palettes, semantic color tokens (success/warning/error/info), usage examples for each semantic color (alert boxes, badges, buttons), and light/dark mode token mapping table.",
+      "source": "designprompts.dev",
+      "category": "Design System",
+      "tags": ["design-system", "color", "tokens", "palette", "dark-mode", "semantic", "documentation"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-025",
+      "title": "Kanban Project Board",
+      "body": "Design a Kanban project management board: draggable columns (To Do, In Progress, Review, Done), task cards with priority color bars, assignee avatars, tag chips, and due dates. Include an 'Add card' button per column, a board header with team members, and a filter bar. Dark and light mode.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["kanban", "project-management", "drag-drop", "cards", "productivity", "collaboration", "saas"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-026",
+      "title": "Checkout Flow — 3 Steps",
+      "body": "Design a 3-step e-commerce checkout flow: (1) Cart review with quantity adjusters and remove buttons, (2) Shipping and payment form with address autocomplete and card input, (3) Order confirmation with summary, estimated delivery, and 'Track Order' CTA. Show a step progress bar throughout.",
+      "source": "designprompts.dev",
+      "category": "E-Commerce",
+      "tags": ["e-commerce", "checkout", "multi-step", "form", "confirmation", "payment", "ux-flow"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-027",
+      "title": "Blog Article Layout",
+      "body": "Design a blog article page layout: a wide hero image, article title in large serif, author avatar with name and date, a reading time estimate, the article body with drop cap, pull quotes, inline code blocks, and image captions. A floating table of contents on the right sidebar. Related posts below.",
+      "source": "designprompts.dev",
+      "category": "Content",
+      "tags": ["blog", "article", "editorial", "serif-typography", "table-of-contents", "reading", "content"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-028",
+      "title": "User Profile Page",
+      "body": "Design a user profile page for a developer community: cover photo, avatar, username, bio, location, social links, follower/following counts. Tab navigation for Posts, Projects, Repositories, Stars. A pinned projects grid and activity heatmap (GitHub-style). Dark mode default.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["profile", "community", "developer", "dark-mode", "heatmap", "tabs", "social"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-029",
+      "title": "AI Chat Interface",
+      "body": "Design an AI chat interface: a sidebar listing conversation history with search, a main chat area with user bubbles (right, blue) and AI bubbles (left, gray), code block rendering with syntax highlighting and copy button, a text input with file attach, voice, and send. Show a streaming typing indicator.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["ai", "chat", "messaging", "sidebar", "code-blocks", "streaming", "saas"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-030",
+      "title": "Mobile Onboarding — Permissions",
+      "body": "Design permission request screens for a camera app: a pre-permission screen explaining why camera/microphone/location access is needed, using friendly illustrations and benefit-focused copy (not legalese). A big 'Allow Access' CTA and a 'Not now' secondary link. Reduce friction, build trust.",
+      "source": "designprompts.dev",
+      "category": "Mobile App",
+      "tags": ["mobile", "onboarding", "permissions", "illustration", "copy", "ux-flow", "trust"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-031",
+      "title": "Dark Glassmorphism Dashboard",
+      "body": "Design a dark-mode analytics dashboard using glassmorphism: frosted glass panels on a deep navy/purple gradient background, a KPI row with glowing accent borders, a glassmorphism area chart, and a table with alternating glass row shading. Subtle radial glow behind key numbers.",
+      "source": "designprompts.dev",
+      "category": "Dashboard",
+      "tags": ["dashboard", "dark-mode", "glassmorphism", "analytics", "gradient", "charts", "glow"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-032",
+      "title": "Search Results Page",
+      "body": "Design a search results page for a content platform: a search bar with autocomplete, result count and sort dropdown, result rows with thumbnail, title, category badge, description snippet with highlighted keywords, and a pagination bar. Left sidebar for faceted filters. Show a 'no results' empty state.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["search", "results", "filters", "pagination", "empty-state", "highlight", "content-platform"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-033",
+      "title": "Agency Team Page",
+      "body": "Design a creative agency team page: a grid of team member cards (photo, name, role, fun tagline, social icons), a studio culture section with candid photos, and a values list with icons. Use an editorial layout with overlapping elements. Dark and light mode toggle visible in the header.",
+      "source": "designprompts.dev",
+      "category": "Landing Page",
+      "tags": ["team", "agency", "editorial", "about-page", "culture", "grid", "photography"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-034",
+      "title": "Toast Notification System",
+      "body": "Design a complete toast notification system: success (green), error (red), warning (amber), info (blue) variants, with icon, title, body text, a close button, and an auto-dismiss progress bar. Show stacking behavior for multiple toasts, slide-in animation direction, and mobile bottom-anchor variant.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["component", "toast", "notifications", "system", "animation", "feedback", "accessibility"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-035",
+      "title": "Empty State Illustrations",
+      "body": "Design 6 empty state screens for a project management app: No Projects, No Tasks, No Team Members, No Notifications, Search No Results, and Upload Complete. Each has a centered illustration, a short headline, a description, and a contextual CTA button. Consistent illustration style, friendly tone.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["empty-state", "illustration", "component", "ux-writing", "cta", "consistency", "saas"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-036",
+      "title": "Subscription Billing Page",
+      "body": "Design a subscription billing management page: current plan summary with usage meters, an upgrade CTA, billing history table (date, amount, status, PDF download link), payment method card with edit/replace options, and a cancel subscription flow with a retention modal offering a discount.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["billing", "subscription", "saas", "table", "retention", "modal", "account"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "dp-037",
+      "title": "Location-Based Store Finder",
+      "body": "Design a store finder page: a split layout with a map on the right and a results list on the left, each store card showing name, address, hours, distance, amenities icons, and a 'Get Directions' link. A search bar with radius selector. Clicking a card highlights the pin on the map.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["maps", "store-finder", "split-layout", "location", "cards", "interactive", "retail"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-038",
+      "title": "Password Strength Indicator",
+      "body": "Design a password creation input component: the input with a show/hide toggle, a real-time strength bar (Weak/Fair/Strong/Very Strong with color change), a checklist showing which requirements are met (8+ chars, uppercase, number, symbol), and a confirm password field with match indicator.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["component", "form", "password", "validation", "real-time", "security", "accessibility"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dp-039",
+      "title": "SaaS Feature Comparison Table",
+      "body": "Design a feature comparison table for a SaaS product: rows are features, columns are plan tiers, cells show checkmarks, X marks, or text values. Sticky header and first column. Mobile version collapses to cards per tier. Include a 'Most Popular' ribbon and a CTA row at the bottom.",
+      "source": "designprompts.dev",
+      "category": "Component",
+      "tags": ["comparison-table", "pricing", "saas", "responsive", "sticky", "features", "cta"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dp-040",
+      "title": "Video Lesson Player UI",
+      "body": "Design an online course video player UI: the video player with custom controls (play/pause, seek, volume, speed, fullscreen, CC), a lesson list sidebar with completed/current/locked states, a progress bar for course completion, and a note-taking panel below the video. Clean learning platform aesthetic.",
+      "source": "designprompts.dev",
+      "category": "Web App",
+      "tags": ["education", "video-player", "course", "sidebar", "progress", "learning", "saas"],
+      "difficulty": "advanced"
+    },
+
+    {
+      "id": "tt-001",
+      "title": "Modern Tech Startup Homepage",
+      "body": "Design a modern and visually striking homepage for a tech startup. Include a bold hero section with a headline that highlights the product's core value proposition, a subheadline, and a primary CTA button. Below the fold, add a social proof bar with logos, a features section (3 columns with icons), and a testimonials carousel. Use a clean sans-serif font, plenty of white space, and one strong accent color.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["landing-page", "startup", "tech", "hero", "social-proof", "features", "testimonials", "homepage"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-002",
+      "title": "Compelling Hero Section",
+      "body": "Create a compelling hero section for a B2B software company website. The hero should include a headline focused on business outcomes (not features), a 2-line supporting subtext, a primary CTA ('Get a Demo') and secondary CTA ('See Pricing'), a product screenshot or mockup on the right, and a background with a subtle mesh gradient. Ensure it's above the fold on a 1280px screen.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["hero", "b2b", "cta", "product-screenshot", "gradient", "above-fold", "saas"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-003",
+      "title": "Navigation Menu with Mega Dropdown",
+      "body": "Design a website navigation bar for a SaaS product with a logo on the left, navigation links in the center (Products, Solutions, Pricing, Resources, Company), and Sign In + Get Started buttons on the right. The 'Products' link opens a mega dropdown with product categories, featured product cards, and links. Make it responsive with a hamburger menu for mobile.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["navigation", "navbar", "dropdown", "mega-menu", "responsive", "mobile", "saas"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-004",
+      "title": "Features Grid Section",
+      "body": "Design a features section for a productivity app website. Show 6 features in a 3×2 grid, each with an icon (simple line icon), a short feature name, and a 1–2 sentence description. Add an optional 'Learn more' link per feature. The section should have a headline and a short intro paragraph above the grid. Use a light gray background to contrast with the rest of the page.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["features", "grid", "icons", "section", "saas", "product", "benefits"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-005",
+      "title": "Responsive Footer Design",
+      "body": "Design a comprehensive website footer with 4 columns: Company (About, Careers, Press, Blog), Product (Features, Pricing, Changelog, Roadmap), Resources (Docs, API, Community, Status), and Legal (Privacy, Terms, Cookie Policy). Include a newsletter signup, social media icons, the company logo, a tagline, and a copyright line. Make it responsive — 4 cols → 2 cols → 1 col.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["footer", "navigation", "newsletter", "social-media", "responsive", "links", "legal"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-006",
+      "title": "Testimonials Section with Avatars",
+      "body": "Design a testimonials section for a marketing website using a card grid layout. Each testimonial card includes a star rating (5 stars), a short quote (2–3 sentences), the customer's name, job title, company, and a headshot avatar. Show 3 cards in a row. Add a subtle background with a soft curve or blob shape behind the section to make it visually distinct.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["testimonials", "social-proof", "cards", "avatar", "stars", "reviews", "marketing"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-007",
+      "title": "Contact Page with Form",
+      "body": "Design a contact page for a B2B company. Split layout: on the left, a headline ('Let's talk'), a short description, contact details (email, phone, address) with icons, and a map embed or office photo. On the right, a contact form with fields for Name, Company, Email, Message, and a budget dropdown. A Submit button with a loading/success state. Include a FAQ accordion below.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["contact", "form", "b2b", "split-layout", "map", "faq", "accordion"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-008",
+      "title": "About Page — Company Story",
+      "body": "Design an 'About Us' page for a design agency: a full-width header with a team photo, a company mission statement in large type, a founding story timeline, key metrics (years, clients, countries, team size) displayed as large numbers with labels, the team grid with photos and names, and the company's core values as illustrated cards.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["about", "company", "team", "timeline", "metrics", "values", "agency", "story"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-009",
+      "title": "Pricing Page — 3 Tiers",
+      "body": "Design a pricing page with 3 subscription tiers (Starter, Growth, Enterprise). Include a monthly/annual billing toggle with annual savings label, feature lists with checkmarks per tier, a 'Most Popular' badge on the middle tier, a money-back guarantee note, a FAQ section addressing common pricing objections, and an enterprise CTA ('Contact Sales'). Clear visual hierarchy between tiers.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["pricing", "tiers", "toggle", "features", "comparison", "saas", "conversion"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-010",
+      "title": "Blog Landing Page",
+      "body": "Design a blog landing page for a tech company: a featured post hero taking up 50% of the viewport (large image, category tag, title, author, date, read time), a 3-column grid of recent posts below (thumbnail, category, title, excerpt, date), a sidebar with popular posts, a search bar, and topic filter tags. Clean editorial layout.",
+      "source": "tisatech.in",
+      "category": "Content",
+      "tags": ["blog", "editorial", "grid", "featured", "sidebar", "search", "content", "tags"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-011",
+      "title": "404 Error Page",
+      "body": "Design a creative 404 error page that maintains brand personality. Include a large '404' or custom illustration, a friendly headline (avoid 'Oops'), a short explanation, a search bar to find what they were looking for, a 'Go Home' button, and 3–4 popular page links. The page should not feel like a dead end — convert the lost user into an engaged one.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["404", "error-page", "illustration", "search", "navigation", "ux-writing", "brand"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-012",
+      "title": "Landing Page for Mobile App",
+      "body": "Design a landing page for a new mobile app: App Store/Play Store badges in the hero, a phone mockup showing the app interface, a 'How it works' 3-step section with animated number indicators, a features list in an alternating two-column layout (text left, screenshot right, then flip), a reviews section pulling from App Store ratings, and a final download CTA section.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["mobile-app", "landing-page", "mockup", "how-it-works", "app-store", "features", "download"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-013",
+      "title": "Product Demo Request Page",
+      "body": "Design a 'Request a Demo' conversion page for a B2B SaaS: a headline focused on the outcome of seeing the demo (not 'fill out the form'), a short form (Name, Work Email, Company, Team Size, Phone), a list of what they'll see in the demo (3 bullet points), logos of well-known customers ('Join 500+ companies'), and a photo of the sales team to humanize the brand.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["demo", "conversion", "b2b", "saas", "form", "social-proof", "sales"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-014",
+      "title": "Color Scheme for Finance Website",
+      "body": "Generate and design a color scheme for a financial services website that conveys trust, stability, and modernity. Primary: deep navy blue. Secondary: emerald green for positive values/CTAs. Neutrals: light gray backgrounds, dark charcoal text. Semantic colors: red for losses, green for gains. Show the scheme in context on a dashboard widget and a landing hero.",
+      "source": "tisatech.in",
+      "category": "Design System",
+      "tags": ["color", "fintech", "finance", "trust", "palette", "design-system", "semantic"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-015",
+      "title": "Homepage for Healthcare Provider",
+      "body": "Design a homepage for a healthcare provider that emphasizes trust and accessibility. Include: a calm hero with a doctor photo and 'Book an Appointment' CTA, a services grid (Primary Care, Telehealth, Specialists, Lab), insurance logos, patient review stars with quote, a doctor finder tool, and a location/hours section. Comply with WCAG AA contrast ratios throughout.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["healthcare", "homepage", "accessibility", "trust", "appointment", "services", "wcag"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-016",
+      "title": "E-Commerce Homepage",
+      "body": "Design an e-commerce homepage for a fashion brand: a full-bleed hero video/image with an overlay headline and 'Shop Now' CTA, a category tiles row (Women, Men, Kids, Sale), a featured collection grid, a 'As Seen In' press logos section, a best sellers carousel, a sustainability story section, and an Instagram feed grid. Aspirational, editorial aesthetic.",
+      "source": "tisatech.in",
+      "category": "E-Commerce",
+      "tags": ["e-commerce", "fashion", "homepage", "carousel", "editorial", "collection", "brand"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-017",
+      "title": "Typography System for a Website",
+      "body": "Design a typography system for a tech startup website. Define: Display (72px/80px, bold, tight tracking), H1 (48px), H2 (36px), H3 (24px), Body (16px/24px line-height), Small (14px), Caption (12px). Pair a geometric sans-serif for headings with a humanist sans for body. Show the type scale in a specimen page with dark and light backgrounds.",
+      "source": "tisatech.in",
+      "category": "Design System",
+      "tags": ["typography", "type-scale", "design-system", "font-pairing", "headings", "specimen", "startup"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-018",
+      "title": "Button Component System",
+      "body": "Design a complete button system for a design system: Primary, Secondary, Tertiary/Ghost, Destructive, and Link variants. Each in Default, Hover, Active, Focused, Disabled, and Loading states. Sizes: XS, SM, MD (default), LG, XL. Icon-left, icon-right, and icon-only variants. Group into a component spec sheet with measurements and usage rules.",
+      "source": "tisatech.in",
+      "category": "Design System",
+      "tags": ["design-system", "buttons", "component", "states", "sizes", "accessibility", "spec-sheet"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-019",
+      "title": "SaaS Dashboard Onboarding Checklist",
+      "body": "Design a product onboarding checklist widget for a SaaS dashboard: a persistent panel (or slide-out drawer) showing setup steps (Connect your data source, Invite team member, Create first report, Set up alerts) with checkboxes, progress bar showing X of 4 complete, and a dismiss option. Each step links to the relevant action. Celebrate completion with a confetti animation.",
+      "source": "tisatech.in",
+      "category": "Web App",
+      "tags": ["onboarding", "saas", "dashboard", "checklist", "progress", "gamification", "activation"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-020",
+      "title": "Agency Portfolio Case Study",
+      "body": "Design a case study page for a digital agency: a project hero with the client logo and a bold challenge statement, the Problem/Approach/Solution sections in an editorial layout, full-width before/after comparison sliders, key result metrics (3 big numbers), a quote from the client, a team credits section, and a 'Next Project' navigation link at the bottom.",
+      "source": "tisatech.in",
+      "category": "Portfolio",
+      "tags": ["case-study", "agency", "portfolio", "editorial", "metrics", "before-after", "storytelling"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-021",
+      "title": "Minimal Personal Website",
+      "body": "Design a minimal personal website for a freelance developer: a single-page layout with a sticky name/nav, a short hero bio section, a selected projects section with just 3 featured works, a writing section linking to 3 recent posts, a now page showing current focus, and a simple footer with email and social links. Black, white, and one accent color. No imagery except in project cards.",
+      "source": "tisatech.in",
+      "category": "Portfolio",
+      "tags": ["portfolio", "personal", "minimal", "single-page", "freelance", "developer", "clean"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-022",
+      "title": "Restaurant Website Homepage",
+      "body": "Design a restaurant website homepage: a full-screen hero with a cinematic food or atmosphere photo, the restaurant name in an elegant serif, Reserve a Table and View Menu CTAs, a 'Our Story' section, a menu highlights grid (3 signature dishes with photos and prices), a gallery grid of ambiance photos, hours and location embedded Google Map, and a reservation form.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["restaurant", "food", "reservation", "hero", "gallery", "serif-typography", "local-business"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-023",
+      "title": "Event Landing Page",
+      "body": "Design an event landing page for a tech conference: a countdown timer in the hero, event name/date/location prominently placed, a speaker lineup grid with photos and topics, a schedule timeline by day/track, sponsorship tiers with logos, a ticket pricing section, and an FAQ accordion. Use bold, energetic typography with a dark background and colorful accents.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["event", "conference", "countdown", "speakers", "schedule", "tickets", "dark-mode"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-024",
+      "title": "Sticky Header on Scroll",
+      "body": "Design a website header behavior for a marketing site: when at the top of the page, the header is transparent overlaying the hero. On scroll, it becomes sticky with a solid/frosted background, reduced height, the logo shrinks slightly, and a CTA button appears. Show both states (top and scrolled) as separate mockups with annotations explaining the transition.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["header", "sticky", "scroll", "interaction", "animation", "navbar", "ux-pattern"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-025",
+      "title": "Product Features — Alternating Layout",
+      "body": "Design a features section using an alternating two-column layout for a SaaS product: text on the left, product screenshot on the right for the first feature; flip for the second; repeat. Each feature has an eyebrow label, a headline, a description, a benefit-oriented bullet list, and a learn more link. The screenshots should appear to float on colored background cards.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["features", "alternating-layout", "screenshot", "saas", "benefits", "section", "storytelling"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-026",
+      "title": "Nonprofit Donation Page",
+      "body": "Design a donation page for a nonprofit: an emotional hero image with a cause headline and urgency message, preset donation amount buttons ($10, $25, $50, $100, Custom), a monthly/one-time toggle, a short description of impact per amount ('$25 feeds a family for a week'), a secure payment form, and trust signals (charity ratings, secure badges, transparency note).",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["nonprofit", "donation", "cta", "trust", "form", "impact", "conversion"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-027",
+      "title": "Dark Mode Landing Page",
+      "body": "Design a complete dark mode landing page for a developer tool: charcoal/near-black background, syntax-highlighted code snippets as hero visuals, neon or vibrant accent for CTAs, muted gray for secondary text, and a light mode toggle in the header. Features section uses terminal-style UI mockups. Typography: monospaced for code, clean sans for prose.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["dark-mode", "developer", "code", "terminal", "syntax-highlighting", "neon", "landing-page"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-028",
+      "title": "Membership/Subscription Website",
+      "body": "Design a membership website for an online learning community: a hero with social proof stats (members, courses, countries), benefit-focused messaging, membership tiers with feature unlocks, a sample content preview showing locked vs unlocked states, a member spotlight section, and a FAQ. Warm, welcoming color palette with community-feeling photography.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["membership", "subscription", "learning", "community", "tiers", "locked-content", "conversion"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-029",
+      "title": "Responsive Grid System",
+      "body": "Design and document a responsive 12-column grid system for a website: define column widths, gutter sizes, and margin sizes at breakpoints (320px, 768px, 1024px, 1280px, 1440px). Show how content reflows at each breakpoint with examples of 4-col, 3-col, 2-col, and 1-col layouts. Include a visual spec sheet with column and gutter measurements.",
+      "source": "tisatech.in",
+      "category": "Design System",
+      "tags": ["grid-system", "responsive", "breakpoints", "layout", "design-system", "columns", "documentation"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-030",
+      "title": "CTA Section — Above Footer",
+      "body": "Design a strong CTA section that appears just above the footer on a SaaS marketing site: a centered layout with a large bold headline, a supporting sentence, two buttons (primary and secondary), and optional social proof (X companies trust us). The section should use a contrasting background (solid brand color, gradient, or dark fill) to visually separate it from the page.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["cta", "section", "conversion", "footer", "social-proof", "saas", "marketing"],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "tt-031",
+      "title": "Icon System Design",
+      "body": "Design a consistent icon system for a productivity app: a set of 24 icons covering navigation (home, search, settings, profile), actions (add, edit, delete, share, download, upload), status (success, error, warning, info), and media (play, pause, volume, fullscreen). Define the stroke weight, corner radius, size grid (24×24), and export format. Show usage examples in a UI context.",
+      "source": "tisatech.in",
+      "category": "Design System",
+      "tags": ["icons", "icon-system", "design-system", "line-icons", "consistency", "stroke", "visual-design"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-032",
+      "title": "Microinteraction — Toggle Switch",
+      "body": "Design a toggle switch component with a rich microinteraction: the thumb slides smoothly, the track color transitions from gray (off) to brand color (on), the thumb has a subtle bounce on land, and an optional icon inside the thumb changes (✕ off → ✓ on). Show all states: off, transitioning, on, disabled-off, disabled-on. Annotate the easing curves and durations.",
+      "source": "tisatech.in",
+      "category": "Component",
+      "tags": ["component", "toggle", "microinteraction", "animation", "states", "accessibility", "interaction"],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "tt-033",
+      "title": "Landing Page Fold Analysis",
+      "body": "Analyze and redesign the above-the-fold section of a generic SaaS landing page. Current state: a headline, subtext, two CTAs, and a product screenshot. Redesign for higher conversion: improve headline clarity (outcome-first), add trust signals (G2 rating badge, customer logos), test a video play button instead of static screenshot, and A/B test a shorter vs longer subtext. Mock up both the original and the redesigned version.",
+      "source": "tisatech.in",
+      "category": "Landing Page",
+      "tags": ["conversion", "above-fold", "a/b-testing", "cta", "hero", "saas", "optimization"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-034",
+      "title": "Accessibility Audit Checklist UI",
+      "body": "Design an accessibility audit dashboard for a web design tool: a page URL input, a run audit button, a results list grouped by WCAG level (A, AA, AAA), each issue showing affected element, screenshot highlight, issue description, and a fix recommendation. Progress ring showing pass percentage. Export to PDF/CSV options.",
+      "source": "tisatech.in",
+      "category": "Web App",
+      "tags": ["accessibility", "wcag", "audit", "dashboard", "tool", "a11y", "developer-tool"],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "tt-035",
+      "title": "Mobile-First Checkout",
+      "body": "Design a mobile-first checkout experience for an e-commerce app optimized for conversion: an order summary that collapses to save space, a large tap-target address form, Apple Pay/Google Pay as the primary payment option with traditional card as secondary, an inline coupon code field, a trust badge strip, and a sticky 'Place Order' button at the bottom with total.",
+      "source": "tisatech.in",
+      "category": "E-Commerce",
+      "tags": ["mobile", "checkout", "e-commerce", "conversion", "payment", "form", "ux-pattern"],
+      "difficulty": "intermediate"
+    }
+  ]
+}

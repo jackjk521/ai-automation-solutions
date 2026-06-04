@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design Prompts Library</title>
+<style>
+  :root {
+    --bg: #111317;
+    --surface: #1a1d23;
+    --surface2: #22262e;
+    --border: #2e333d;
+    --text: #e8eaf0;
+    --text-muted: #7a8099;
+    --amber: #f5a623;
+    --amber-dim: #c47d0e;
+    --teal: #2dd4bf;
+    --teal-dim: #14b8a6;
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --red: #f87171;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #1a1d23 0%, #111317 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--amber), var(--teal));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .logo h1 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--amber), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .logo p {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .header-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-item .num {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .stat-item .label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  /* Search bar */
+  .search-wrap {
+    padding: 20px 32px 0;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .search-box {
+    position: relative;
+    width: 100%;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 15px;
+    padding: 12px 44px 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,212,191,.12); }
+  .search-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 16px;
+  }
+  /* Filters */
+  .filters {
+    padding: 16px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+  .chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--teal); color: var(--teal); }
+  .chip.active { background: var(--teal); border-color: var(--teal); color: #111; font-weight: 600; }
+  .chip.source-dp.active { background: var(--amber); border-color: var(--amber); color: #111; }
+  .chip.source-tt.active { background: var(--purple); border-color: var(--purple); color: #111; }
+  .chip.diff-beginner.active { background: var(--green); border-color: var(--green); color: #111; }
+  .chip.diff-intermediate.active { background: var(--amber); border-color: var(--amber); color: #111; }
+  .chip.diff-advanced.active { background: var(--red); border-color: var(--red); color: #fff; }
+  /* Tag cloud */
+  .tag-section {
+    padding: 0 32px 12px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .tag-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag-pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .tag-pill:hover { border-color: var(--teal); color: var(--teal); border-style: solid; }
+  .tag-pill.active { border-color: var(--teal); color: var(--teal); border-style: solid; background: rgba(45,212,191,0.08); }
+  /* Results bar */
+  .results-bar {
+    padding: 0 32px 12px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .result-count {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .result-count span { color: var(--teal); font-weight: 600; }
+  .clear-btn {
+    background: none;
+    border: none;
+    color: var(--amber);
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .clear-btn:hover { color: var(--amber-dim); }
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+    padding: 0 32px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--amber), var(--teal));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .card:hover { border-color: var(--teal-dim); transform: translateY(-2px); }
+  .card:hover::before { opacity: 1; }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .badges {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  .badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .badge-source-dp { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .badge-source-tt { background: rgba(192,132,252,0.15); color: var(--purple); }
+  .badge-beginner { background: rgba(74,222,128,0.15); color: var(--green); }
+  .badge-intermediate { background: rgba(245,166,35,0.15); color: var(--amber); }
+  .badge-advanced { background: rgba(248,113,113,0.15); color: var(--red); }
+  .card-body {
+    font-size: 13px;
+    color: #b0b8cc;
+    line-height: 1.6;
+    flex: 1;
+  }
+  .card-body.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .expand-btn {
+    background: none;
+    border: none;
+    color: var(--teal);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0;
+    margin-top: -4px;
+    align-self: flex-start;
+  }
+  .expand-btn:hover { text-decoration: underline; }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tag:hover { border-color: var(--teal); color: var(--teal); }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+  .card-id {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+  .copy-btn {
+    padding: 5px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .copy-btn:hover { border-color: var(--teal); color: var(--teal); background: rgba(45,212,191,0.07); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+  /* Empty state */
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+  /* Responsive */
+  @media (max-width: 600px) {
+    header { padding: 16px; }
+    .search-wrap, .filters, .tag-section, .results-bar, .grid { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🎨</div>
+    <div>
+      <h1>Design Prompts Library</h1>
+      <p>Curated prompts for web & UI design</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-item">
+      <div class="num" id="totalCount">75</div>
+      <div class="label">Prompts</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">9</div>
+      <div class="label">Categories</div>
+    </div>
+    <div class="stat-item">
+      <div class="num">2</div>
+      <div class="label">Sources</div>
+    </div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search prompts by title, description or tag…" autocomplete="off" />
+    <span class="search-icon">⌕</span>
+  </div>
+</div>
+
+<div class="filters">
+  <div class="filter-row">
+    <span class="filter-label">Category</span>
+    <button class="chip active" data-filter="category" data-value="all">All</button>
+    <button class="chip" data-filter="category" data-value="Landing Page">Landing Page</button>
+    <button class="chip" data-filter="category" data-value="Mobile App">Mobile App</button>
+    <button class="chip" data-filter="category" data-value="Dashboard">Dashboard</button>
+    <button class="chip" data-filter="category" data-value="E-Commerce">E-Commerce</button>
+    <button class="chip" data-filter="category" data-value="Component">Component</button>
+    <button class="chip" data-filter="category" data-value="Web App">Web App</button>
+    <button class="chip" data-filter="category" data-value="Portfolio">Portfolio</button>
+    <button class="chip" data-filter="category" data-value="Design System">Design System</button>
+    <button class="chip" data-filter="category" data-value="Content">Content</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Source</span>
+    <button class="chip active" data-filter="source" data-value="all">All</button>
+    <button class="chip source-dp" data-filter="source" data-value="designprompts.dev">designprompts.dev</button>
+    <button class="chip source-tt" data-filter="source" data-value="tisatech.in">tisatech.in</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Difficulty</span>
+    <button class="chip active" data-filter="difficulty" data-value="all">All</button>
+    <button class="chip diff-beginner" data-filter="difficulty" data-value="beginner">Beginner</button>
+    <button class="chip diff-intermediate" data-filter="difficulty" data-value="intermediate">Intermediate</button>
+    <button class="chip diff-advanced" data-filter="difficulty" data-value="advanced">Advanced</button>
+  </div>
+</div>
+
+<div class="tag-section">
+  <div class="tag-section-label">Popular Tags</div>
+  <div class="tag-cloud" id="tagCloud"></div>
+</div>
+
+<div class="results-bar">
+  <div class="result-count">Showing <span id="resultCount">0</span> prompts</div>
+  <button class="clear-btn" id="clearBtn" style="display:none">Clear all filters</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const state = {
+  prompts: [],
+  search: '',
+  category: 'all',
+  source: 'all',
+  difficulty: 'all',
+  tag: null,
+};
+
+// ─── Load data ───────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch('prompts.json');
+    const data = await res.json();
+    state.prompts = data.prompts;
+    document.getElementById('totalCount').textContent = data.meta.total;
+    buildTagCloud();
+    render();
+  } catch (e) {
+    document.getElementById('grid').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠️</div><h3>Could not load prompts.json</h3><p>Open this file via a local server (e.g. Live Server in VS Code)</p></div>';
+  }
+}
+
+// ─── Tag cloud ────────────────────────────────────────────────────────────────
+const POPULAR_TAGS = [
+  'landing-page','saas','dark-mode','hero','glassmorphism','neumorphism','brutalism',
+  'responsive','mobile','dashboard','e-commerce','component','typography','animation',
+  'accessibility','minimal','grid','card','form','navigation','fintech','startup',
+  'portfolio','design-system','data-display','color-palette','filter','table',
+  'modal','sidebar','microinteraction','illustration','gradient','chart',
+];
+
+function buildTagCloud() {
+  const allTags = new Set();
+  state.prompts.forEach(p => p.tags.forEach(t => allTags.add(t)));
+  const popular = POPULAR_TAGS.filter(t => allTags.has(t));
+  const rest = [...allTags].filter(t => !popular.includes(t)).sort();
+  const tags = [...popular, ...rest];
+  const cloud = document.getElementById('tagCloud');
+  cloud.innerHTML = tags.map(t =>
+    `<button class="tag-pill" data-tag="${t}">${t}</button>`
+  ).join('');
+  cloud.addEventListener('click', e => {
+    const btn = e.target.closest('.tag-pill');
+    if (!btn) return;
+    const tag = btn.dataset.tag;
+    if (state.tag === tag) {
+      state.tag = null;
+      btn.classList.remove('active');
+    } else {
+      state.tag = tag;
+      cloud.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    render();
+  });
+}
+
+// ─── Filter + render ──────────────────────────────────────────────────────────
+function filter() {
+  const q = state.search.toLowerCase().trim();
+  return state.prompts.filter(p => {
+    if (state.category !== 'all' && p.category !== state.category) return false;
+    const src = p.source.includes('tisatech') ? 'tisatech.in' : 'designprompts.dev';
+    if (state.source !== 'all' && src !== state.source) return false;
+    if (state.difficulty !== 'all' && p.difficulty !== state.difficulty) return false;
+    if (state.tag && !p.tags.includes(state.tag)) return false;
+    if (q) {
+      const hay = `${p.title} ${p.body} ${p.tags.join(' ')} ${p.category}`.toLowerCase();
+      if (!q.split(/\s+/).every(word => hay.includes(word))) return false;
+    }
+    return true;
+  });
+}
+
+function sourceBadgeClass(source) {
+  return source.includes('tisatech') ? 'badge-source-tt' : 'badge-source-dp';
+}
+function sourceLabel(source) {
+  return source.includes('tisatech') ? 'tisatech' : 'designprompts';
+}
+
+function renderCard(p) {
+  const diffClass = `badge-${p.difficulty}`;
+  const srcClass = sourceBadgeClass(p.source);
+  const srcLabel = sourceLabel(p.source);
+  const tags = p.tags.map(t =>
+    `<span class="tag" data-tag="${t}">${t}</span>`
+  ).join('');
+  return `
+<div class="card" data-id="${p.id}">
+  <div class="card-header">
+    <div class="card-title">${escHtml(p.title)}</div>
+    <div class="badges">
+      <span class="badge ${srcClass}">${srcLabel}</span>
+      <span class="badge ${diffClass}">${p.difficulty}</span>
+    </div>
+  </div>
+  <div class="card-body collapsed" id="body-${p.id}">${escHtml(p.body)}</div>
+  <button class="expand-btn" data-expand="${p.id}">Show more ↓</button>
+  <div class="card-tags">${tags}</div>
+  <div class="card-footer">
+    <span class="card-id">${p.id}</span>
+    <button class="copy-btn" data-copy="${p.id}">
+      <span>Copy</span>
+    </button>
+  </div>
+</div>`;
+}
+
+function render() {
+  const results = filter();
+  const grid = document.getElementById('grid');
+  document.getElementById('resultCount').textContent = results.length;
+
+  // Clear btn
+  const hasFilter = state.search || state.category !== 'all' || state.source !== 'all' || state.difficulty !== 'all' || state.tag;
+  document.getElementById('clearBtn').style.display = hasFilter ? 'inline' : 'none';
+
+  if (results.length === 0) {
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <h3>No prompts found</h3>
+      <p>Try a different search term or clear your filters</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = results.map(renderCard).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Event delegation ─────────────────────────────────────────────────────────
+document.getElementById('grid').addEventListener('click', e => {
+  // Copy button
+  const copyBtn = e.target.closest('[data-copy]');
+  if (copyBtn) {
+    const id = copyBtn.dataset.copy;
+    const prompt = state.prompts.find(p => p.id === id);
+    if (prompt) {
+      navigator.clipboard.writeText(prompt.body).then(() => {
+        copyBtn.classList.add('copied');
+        copyBtn.querySelector('span').textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.querySelector('span').textContent = 'Copy';
+        }, 2000);
+      });
+    }
+    return;
+  }
+  // Expand button
+  const expandBtn = e.target.closest('[data-expand]');
+  if (expandBtn) {
+    const id = expandBtn.dataset.expand;
+    const bodyEl = document.getElementById(`body-${id}`);
+    if (bodyEl.classList.contains('collapsed')) {
+      bodyEl.classList.remove('collapsed');
+      expandBtn.textContent = 'Show less ↑';
+    } else {
+      bodyEl.classList.add('collapsed');
+      expandBtn.textContent = 'Show more ↓';
+    }
+    return;
+  }
+  // Tag click inside card
+  const tagEl = e.target.closest('.tag');
+  if (tagEl) {
+    const tag = tagEl.dataset.tag;
+    state.tag = tag;
+    document.querySelectorAll('.tag-pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.tag === tag);
+    });
+    render();
+  }
+});
+
+// ─── Filter chips ─────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.filter;
+    const val = btn.dataset.value;
+    state[key] = val;
+    // Update active chips in this row
+    document.querySelectorAll(`[data-filter="${key}"]`).forEach(b => {
+      b.classList.toggle('active', b.dataset.value === val);
+    });
+    render();
+  });
+});
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value;
+  render();
+});
+
+// ─── Clear ────────────────────────────────────────────────────────────────────
+document.getElementById('clearBtn').addEventListener('click', () => {
+  state.search = '';
+  state.category = 'all';
+  state.source = 'all';
+  state.difficulty = 'all';
+  state.tag = null;
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('[data-filter]').forEach(b => {
+    b.classList.toggle('active', b.dataset.value === 'all');
+  });
+  document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
+  render();
+});
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
