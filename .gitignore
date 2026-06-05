@@ -9,3 +9,6 @@ showcase/npm-debug.log*
 showcase/yarn-debug.log*
 showcase/yarn-error.log*
 showcase/.pnpm-debug.log*
+
+
+.vscode/
